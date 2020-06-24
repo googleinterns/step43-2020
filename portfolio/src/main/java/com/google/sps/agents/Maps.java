@@ -14,15 +14,17 @@ import java.util.Map;
  * Maps Agent
  */
 public class Maps implements Agent {
+    
     private final String intentName;
     private Struct location;
     private Map<String, Value> fields;
     private String businessName;
     private String city;
+    private String county;
     private String country;
     private String island;
-    private String streetAddress;
     private String state;
+    private String streetAddress;
     private String zipCode;
 
 
@@ -38,10 +40,11 @@ public class Maps implements Agent {
         fields = location.getFieldsMap();
         businessName = fields.get("business-name").getStringValue();
         city = fields.get("city").getStringValue();
+        county = fields.get("subadmin-area");
         country = fields.get("country").getStringValue();
         island = fields.get("island").getStringValue();
         streetAddress = fields.get("street-address").getStringValue();
-        state = fields.get("subadmin-area").getStringValue();
+        state = fields.get("admin-area").getStringValue();
         zipCode = fields.get("zip-code").getStringValue();
         
 	}
