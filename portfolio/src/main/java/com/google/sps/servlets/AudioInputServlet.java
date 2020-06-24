@@ -93,7 +93,7 @@ public class AudioInputServlet extends HttpServlet {
     } catch (Exception e) {
         e.printStackTrace();
     }
-    
+
     QueryResult englishOutput = TextUtils.detectIntentStream(translatedInputText, englishLanguageCode);
 
     // Google Translate API - convert input and fulfillment to appropriate language
@@ -101,6 +101,7 @@ public class AudioInputServlet extends HttpServlet {
     String fulfillment = englishOutput.getFulfillmentText();
     String userInputTranslation = TranslateAgent.translate(userInput, englishLanguageCode, languageCode).getTranslatedText();
     String fulfillmentTranslation = TranslateAgent.translate(fulfillment, englishLanguageCode, languageCode).getTranslatedText();
+
     byte[] byteArray = AgentUtils.getByteStringToByteArray(fulfillmentTranslation, languageCode);
     Output languageOutput = new Output(userInputTranslation, fulfillmentTranslation, byteArray);
     return languageOutput;

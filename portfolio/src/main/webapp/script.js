@@ -22,6 +22,7 @@ const stop = document.querySelector('.stop');
 const soundClips = document.querySelector('.sound-clips');
 const canvas = document.querySelector('.visualizer');
 const mainSection = document.querySelector('.main-controls');
+const streamingContainer = document.getElementsByName('streaming')[0];
  
 // disable stop button while not recording
  
@@ -29,10 +30,13 @@ stop.disabled = true;
  
 record.addEventListener("click", startRecording);
 stop.addEventListener("click", stopRecording);
+
+var streamingStarted;
  
 function startRecording() {
     console.log("recordButton clicked");
-    
+    streamingContainer.style.display = "initial";
+    placeUserInput("...", "streaming");
     var constraints = { audio: true, video:false }
  
     // Disable the record button until we get a success or fail from getUserMedia() 
@@ -65,6 +69,8 @@ function startRecording() {
         //start the recording process
         rec.record()
         console.log("Recording started");
+
+        streamingStarted = setInterval(streamAudio, 1000);
  
     }).catch(function(err) {
         //enable the record button if getUserMedia() fails
@@ -72,9 +78,16 @@ function startRecording() {
         stop.disabled = true;
     });
 }
+
+function streamAudio() {
+  rec.stop();
+  rec.exportWAV(getAudioStream);
+  rec.record();
+}
  
 function stopRecording() {
     console.log("stopButton clicked");
+    clearInterval(streamingStarted);
  
     //disable the stop button, enable the record too allow for new recordings
     stop.disabled = true;
@@ -191,6 +204,16 @@ function getLanguage() {
   language = language == null ? "English" : language;
   return language;
 }
+
+function getAudioStream(blob) {
+  fetch('/audio-stream' + '?language=' + getLanguage(), {
+    method: 'POST',
+    body: blob
+  }).then(response => response.text()).then(stream => {
+    streamingContainer.innerHTML = "";
+    placeUserInput(stream + "...", "streaming");
+  });
+}
  
 function getResponseFromAudio(blob) {
   const formData = new FormData();
@@ -199,14 +222,12 @@ function getResponseFromAudio(blob) {
   fetch('/audio-input'+"?language="+getLanguage(), {
     method: 'POST',
     body: blob
-  }).then(response => response.text()).then((stream) => {
-      displayResponse(stream);
-  });
+  }).then(response => response.text()).then(stream => displayResponse(stream));
 }
  
 function getResponseFromText(){
   var input = document.getElementById('text-input').value;
-  fetch('/text-input?request-input=' + input + "&language="+getLanguage(),{
+  fetch('/text-input?request-input=' + input + '&language=' + getLanguage(), {
       method: 'POST'
   }).then(response => response.text()).then((stream) => {
      displayResponse(stream);
@@ -218,20 +239,24 @@ function getResponseFromText(){
 
 function displayResponse(stream) {
   var outputAsJson = JSON.parse(stream);
-  placeUserInput(outputAsJson.userInput);
+  placeUserInput(outputAsJson.userInput, "convo-container");
   placeFulfillmentResponse(outputAsJson.fulfillmentText);
   outputAudio(stream);
 }
  
-function placeUserInput(text) {
+function placeUserInput(text, container) {
+  if (container == "convo-container") {
+    streamingContainer.innerHTML = "";
+    streamingContainer.style.display = "none";
+  }
   if (text != " (null) "){
     var formattedInput = text.substring(0, 1).toUpperCase() + text.substring(1); 
-    placeObject("<p>" + formattedInput + "</p>", "user-side");
+    placeObjectContainer("<p>" + formattedInput + "</p>", "user-side", container);
   }
 }
  
 function placeFulfillmentResponse(text) {
-  placeObject("<p>" + text + "</p>", "assistant-side");
+  placeObjectContainer("<p>" + text + "</p>", "assistant-side", "convo-container");
   console.log(text);
   if (text.includes("Switching conversation language")) {
     window.sessionStorage.setItem("language", getLastWord(text));
@@ -245,11 +270,11 @@ function getLastWord(words) {
 }
  
 function placeDisplay(text) {
-  placeObject(text, "media-display");
+  placeObjectContainer(text, "media-display", "convo-container");
 }
- 
-function placeObject(text, type) {
-  var container = document.getElementsByName("convo-container")[0];
+
+function placeObjectContainer(text, type, container) {
+  var container = document.getElementsByName(container)[0];
   container.innerHTML += ("<div class='" + type + "'>" + text + "</div><br>")
   updateScroll();
 }

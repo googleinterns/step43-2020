@@ -27,7 +27,7 @@ public class UnitConverter implements Agent {
 
 	@Override 
 	public void setParameters(Map<String, Value> parameters) {
-
+    
 	  unitFrom = parameters.get("unit-from").getStringValue();
       unitTo = parameters.get("unit-to").getStringValue();
       amount = parameters.get("amount").getNumberValue();
@@ -45,8 +45,9 @@ public class UnitConverter implements Agent {
 
 	@Override
 	public String getRedirect() {
-        String baseURL = "http://www.google.com/search?q=";
-        String endURL = String.join("+", "Convert", String.valueOf(amount), unitFrom, "to", unitTo);
+
+    String baseURL = "http://www.google.com/search?q=";
+    String endURL = String.join("+", "Convert", String.valueOf(amount), unitFrom, "to", unitTo);
 		return baseURL + endURL;
-    }
+  }
 }
