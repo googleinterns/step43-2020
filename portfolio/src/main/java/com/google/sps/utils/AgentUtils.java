@@ -121,9 +121,9 @@ public class AgentUtils {
     }
     switch(language) {
       case "Chinese":
-        return "zh-CN";
+        return "zh";
       case "English": 
-        return "en-US";
+        return "en";
       case "French":
         return "fr";
       case "German":

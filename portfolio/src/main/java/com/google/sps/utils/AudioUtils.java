@@ -29,7 +29,7 @@ import java.nio.file.Paths;
  */
 public class AudioUtils {
  
-  static SessionName session = SessionName.of("fair-syntax-280601", "1");
+  static SessionName session = SessionName.of("mihira-step-2020-3", "1");
  
   public static QueryResult detectIntentStream(ByteString bytestring) {
     QueryResult queryResult = null;
@@ -62,7 +62,7 @@ public class AudioUtils {
  */
 public static String detectSpeechLanguage(byte[] data, String languageCode) {
   try (SpeechClient speechClient = SpeechClient.create()) {
-    int sampleRateHertz = 44100;
+    int sampleRateHertz = 48000;
 
     RecognitionConfig.AudioEncoding encoding = RecognitionConfig.AudioEncoding.LINEAR16;
     RecognitionConfig config =
