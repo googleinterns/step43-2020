@@ -80,14 +80,13 @@ public class AudioInputServlet extends HttpServlet {
     String languageCode = AgentUtils.getLanguageCode(language);
     System.out.println("CODE: " + languageCode);
     String detectedUserInputString = AudioUtils.detectSpeechLanguage(bytestring.toByteArray(), languageCode);
-    System.out.println("DETECTED STRING: " + detectedUserInputString);
+
     String englishLanguageCode = AgentUtils.getLanguageCode("English");
     //Google Translate API - convert detectedUserInputString from language to English
     Translation inputTranslation = TranslateAgent.translate(detectedUserInputString, languageCode, englishLanguageCode);
 
     //call handleEnglishQuery
     String translatedInputText = inputTranslation.getTranslatedText(); 
-    System.out.println("TRANSLATED STRING: " + translatedInputText);
     ByteString inputByteString = null;
     try {
         inputByteString = SpeechUtils.synthesizeText(translatedInputText, languageCode);
@@ -98,7 +97,6 @@ public class AudioInputServlet extends HttpServlet {
     QueryResult englishOutput = TextUtils.detectIntentStream(translatedInputText, englishLanguageCode);
 
     // Google Translate API - convert input and fulfillment to appropriate language
-    System.out.println("===============================================================");
     String userInput = englishOutput.getQueryText();
     String fulfillment = englishOutput.getFulfillmentText();
     String userInputTranslation = TranslateAgent.translate(userInput, englishLanguageCode, languageCode).getTranslatedText();
