@@ -41,4 +41,3 @@ public class Weather implements Agent {
 		return null;
     }
 }
-

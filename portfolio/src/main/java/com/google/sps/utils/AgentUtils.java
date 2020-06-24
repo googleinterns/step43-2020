@@ -9,6 +9,7 @@ import com.google.protobuf.Struct;
 import com.google.protobuf.Value;
 import com.google.sps.utils.TextUtils;
 import com.google.sps.utils.SpeechUtils;
+import com.google.sps.data.Location;
 import com.google.sps.data.Output;
 import com.google.sps.agents.*;
 import java.io.BufferedReader;
@@ -25,6 +26,7 @@ import javax.servlet.http.HttpServlet;
 public class AgentUtils {
   
   public static Output getOutput(QueryResult queryResult, String languageCode) {
+    //
     String fulfillment = null;
     String display = null;
     String redirect = null;
@@ -39,17 +41,23 @@ public class AgentUtils {
     String inputDetected = queryResult.getQueryText();
     inputDetected = inputDetected.equals("") ? " (null) " : inputDetected;
     Map<String, Value> parameterMap = getParameterMap(queryResult);
+    
     object = getAgent(agentName, intentName, parameterMap);
 
     if (object != null){
-        fulfillment = object.getOutput();
-        display = object.getDisplay();
-        redirect = object.getRedirect();
+        try{
+            fulfillment = object.getOutput();
+            display = object.getDisplay();
+            redirect = object.getRedirect();
+        }catch (Exception e){
+            e.printStackTrace();
+        }
     } else {
         fulfillment = queryResult.getFulfillmentText();
-        fulfillment = fulfillment.equals("") ? "I didn't hear you. Can you repeat that?" : fulfillment;
     }
 
+    fulfillment = fulfillment == null ? "I didn't hear you. Can you repeat that?" : fulfillment;
+    
     byteStringToByteArray = getByteStringToByteArray(fulfillment, languageCode);
     Output output = new Output(inputDetected, fulfillment, byteStringToByteArray, display, redirect);
     return output;
