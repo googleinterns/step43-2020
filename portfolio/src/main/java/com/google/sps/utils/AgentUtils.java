@@ -63,6 +63,8 @@ public class AgentUtils {
         return new Currency(intentName, parameterMap);
       case "language":
         return new Language(intentName, parameterMap);
+      case "maps":
+        return new Maps(intentName, parameterMap);
       case "name":
         return new Name(intentName, parameterMap);
       case "reminders":
