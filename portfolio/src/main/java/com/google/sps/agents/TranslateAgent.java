@@ -45,9 +45,9 @@ public class TranslateAgent implements Agent {
 	
 	@Override
 	public String getOutput() {
-        Translation translation = translate(text, languageFromCode, languageToCode);
-        String translatedString = translation.getTranslatedText();
-	      return text + " in " + languageTo + " is: " + translatedString;
+        	Translation translation = translate(text, languageFromCode, languageToCode);
+        	String translatedString = translation.getTranslatedText();
+		return text + " in " + languageTo + " is: " + translatedString;
 	}
 
 	@Override
