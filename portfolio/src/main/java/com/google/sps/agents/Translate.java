@@ -11,30 +11,24 @@ import java.io.IOException;
 import java.util.Map;
  
 /**
- * Unit Converter Agent
+ * Translate Agent
  */
-public class UnitConverter implements Agent {
+public class Translate implements Agent {
     private final String intentName;
-  	private String unitFrom;
-    private String unitTo;
-    private Double amount;
-  
-    public UnitConverter(String intentName, Map<String, Value> parameters) {
+  	private String searchText;
+    
+    public Translate(String intentName, Map<String, Value> parameters) {
       this.intentName = intentName;
       setParameters(parameters);
     }
 
 	@Override 
 	public void setParameters(Map<String, Value> parameters) {
-
-	  unitFrom = parameters.get("unit-from").getStringValue();
-      unitTo = parameters.get("unit-to").getStringValue();
-      amount = parameters.get("amount").getNumberValue();
 	}
 	
 	@Override
 	public String getOutput() {
-	  return "Redirecting for conversion";
+	  return null;
 	}
 
 	@Override
@@ -44,9 +38,6 @@ public class UnitConverter implements Agent {
 
 	@Override
 	public String getRedirect() {
-
-    String baseURL = "http://www.google.com/search?q=";
-    String endURL = String.join("+", "Convert", String.valueOf(amount), unitFrom, "to", unitTo);
-		return baseURL + endURL;
-  }
+		return null;
+    }
 }

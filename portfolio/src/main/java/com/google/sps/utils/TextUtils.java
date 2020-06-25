@@ -44,4 +44,3 @@ public class TextUtils {
     return queryResult;
   }
 }
-

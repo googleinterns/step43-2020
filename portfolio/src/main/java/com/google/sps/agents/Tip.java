@@ -76,4 +76,3 @@ public class Tip implements Agent {
         return null;
     }
 }
-

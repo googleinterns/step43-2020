@@ -219,7 +219,7 @@ function getResponseFromAudio(blob) {
   const formData = new FormData();
   formData.append('audio-file', blob);
  
-  fetch('/audio-input'+"?language="+getLanguage(), {
+  fetch('/audio-input' + '?language=' + getLanguage(), {
     method: 'POST',
     body: blob
   }).then(response => response.text()).then(stream => displayResponse(stream));
@@ -229,14 +229,12 @@ function getResponseFromText(){
   var input = document.getElementById('text-input').value;
   fetch('/text-input?request-input=' + input + '&language=' + getLanguage(), {
       method: 'POST'
-  }).then(response => response.text()).then((stream) => {
-     displayResponse(stream);
-  });
-
+  }).then(response => response.text()).then(stream => displayResponse(stream));
+ 
   var frm = document.getElementsByName('input-form')[0];
   frm.reset(); 
 }
-
+ 
 function displayResponse(stream) {
   var outputAsJson = JSON.parse(stream);
   placeUserInput(outputAsJson.userInput, "convo-container");
@@ -302,7 +300,6 @@ function outputAudio(stream){
 function sendRedirect(URL){
   window.open(URL);
 }
-
  
 function getAudio(byteArray){
   var base64 = arrayBufferToBase64(byteArray);

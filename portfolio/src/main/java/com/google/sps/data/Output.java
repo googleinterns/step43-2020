@@ -9,7 +9,6 @@ public final class Output {
   private final String display;
   private final String redirect;
  
-
   // Constructor without display
   public Output(String userInput, String fulfillmentText, byte[] byteStringToByteArray) {
       this.userInput = userInput;
@@ -20,7 +19,6 @@ public final class Output {
   }
  
   // Constructor with display
-
   public Output(String userInput, String fulfillmentText, byte[] byteStringToByteArray, String display) {
       this.userInput = userInput;
       this.fulfillmentText = fulfillmentText;
@@ -54,4 +52,3 @@ public final class Output {
       return this.display;
   }
 }
-

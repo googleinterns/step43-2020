@@ -36,7 +36,6 @@ public class SpeechUtils {
     * @param text the raw text to be synthesized. (e.g., "Hello there!")
     * @throws Exception on TextToSpeechClient Errors.
     */
-
     public static ByteString synthesizeText(String text, String languageCode) throws Exception {
         languageCode = (languageCode == null) ? "en-US" : languageCode;
 

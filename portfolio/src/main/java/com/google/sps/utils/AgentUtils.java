@@ -33,6 +33,7 @@ public class AgentUtils {
     byte[] byteStringToByteArray = null;
     Agent object = null;
 
+
     String detectedIntent = queryResult.getIntent().getDisplayName();
     String agentName = getAgentName(detectedIntent);
     String intentName = getIntentName(detectedIntent);
@@ -41,7 +42,7 @@ public class AgentUtils {
     String inputDetected = queryResult.getQueryText();
     inputDetected = inputDetected.equals("") ? " (null) " : inputDetected;
     Map<String, Value> parameterMap = getParameterMap(queryResult);
-    
+
     object = getAgent(agentName, intentName, parameterMap);
 
     if (object != null){
@@ -157,4 +158,3 @@ public class AgentUtils {
     }
   }
 }
-

@@ -18,5 +18,4 @@ public interface Agent {
     public String getOutput();
     public String getDisplay();
     public String getRedirect();
-
 }
