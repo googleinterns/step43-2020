@@ -1,4 +1,4 @@
-package com.google.sps.agents;
+package com.google.sps.servlets;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
@@ -12,7 +12,6 @@ import com.google.protobuf.Value;
 import com.google.protobuf.util.JsonFormat;
 import com.google.sps.data.DialogFlowClient;
 import com.google.sps.data.Output;
-import com.google.sps.servlets.TextInputServlet;
 import java.io.*;
 import java.util.*;
 import javax.servlet.http.*;
@@ -52,6 +51,7 @@ public class TestHelper {
     when(dialogFlowMock.getIntentName()).thenReturn(intentName);
     when(dialogFlowMock.getIntentConfidence()).thenReturn((float) 1.0);
     when(dialogFlowMock.getFulfillmentText()).thenReturn("");
+    when(dialogFlowMock.getAllRequiredParamsPresent()).thenReturn(true);
   }
 
   // Retrieves output in the same form as that which is passed to javascript

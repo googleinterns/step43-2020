@@ -2,8 +2,8 @@ package com.google.sps.agents;
 
 public class UserObject {
 
-  String userID;
-  String email;
+  private final String userID;
+  private final String email;
 
   UserObject(String userID, String email) {
     this.userID = userID;

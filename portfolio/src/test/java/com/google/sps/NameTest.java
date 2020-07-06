@@ -8,6 +8,7 @@ import com.google.appengine.api.users.UserService;
 import com.google.appengine.tools.development.testing.LocalDatastoreServiceTestConfig;
 import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
 import com.google.protobuf.Value;
+import com.google.sps.servlets.TestHelper;
 import java.util.Map;
 import org.junit.After;
 import org.junit.Before;

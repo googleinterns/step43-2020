@@ -1,7 +1,6 @@
 package com.google.sps.utils;
 
 // Imports the Google Cloud client library
-import com.google.cloud.dialogflow.v2.QueryResult;
 import com.google.cloud.translate.TranslateException;
 import com.google.maps.errors.ApiException;
 import com.google.protobuf.ByteString;
@@ -14,7 +13,7 @@ import java.util.Map;
 
 /** Identifies agent from Dialogflow API Query result and creates Output object */
 public class AgentUtils {
-  
+
   public static String detectedInput;
 
   public static Output getOutput(DialogFlowClient queryResult, String languageCode) {
@@ -24,7 +23,7 @@ public class AgentUtils {
     byte[] byteStringToByteArray = null;
     Agent object = null;
 
-    String detectedIntent = queryResult.getIntent().getDisplayName();
+    String detectedIntent = queryResult.getIntentName();
     Boolean allParamsPresent = queryResult.getAllRequiredParamsPresent();
     String agentName = getAgentName(detectedIntent);
     String intentName = getIntentName(detectedIntent);
@@ -107,11 +106,6 @@ public class AgentUtils {
     }
   }
 
-  private static String getAgentName(String detectedIntent) {
-    String[] intentList = detectedIntent.split("\\.", 2);
-    return intentList[0];
-  }
-
   private static String getIntentName(String detectedIntent) {
     String[] intentList = detectedIntent.split("\\.", 2);
     String intentName = detectedIntent;
@@ -125,12 +119,6 @@ public class AgentUtils {
     return detectedInput;
   }
 
-  public static Map<String, Value> getParameterMap(QueryResult queryResult) {
-    Struct paramStruct = queryResult.getParameters();
-    Map<String, Value> parameters = paramStruct.getFieldsMap();
-    return parameters;
-  }
-  
   public static byte[] getByteStringToByteArray(String fulfillment, String languageCode) {
     byte[] byteArray = null;
     try {

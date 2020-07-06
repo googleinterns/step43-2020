@@ -53,16 +53,4 @@ public class AuthServlet extends HttpServlet {
   protected DatastoreService createDatastore() {
     return DatastoreServiceFactory.getDatastoreService();
   }
-
-  class AuthOutput {
-    String authText;
-    String displayName;
-    String logButton;
-
-    AuthOutput(String authText, String displayName, String logButton) {
-      this.authText = authText;
-      this.displayName = displayName;
-      this.logButton = logButton;
-    }
-  }
 }

@@ -17,11 +17,11 @@ public class Name implements Agent {
   private static Logger log = LoggerFactory.getLogger(Name.class);
 
   private String intentName;
-  String outputText;
-  String userID;
-  String userDisplayName;
-  DatastoreService datastore = createDatastore();
-  UserService userService = createUserService();
+  private String outputText;
+  private String userID;
+  private String userDisplayName;
+  private DatastoreService datastore = createDatastore();
+  private UserService userService = createUserService();
 
   public Name(String intentName, Map<String, Value> parameters) {
     if (intentName == null) { // Required for my mock tests to run
