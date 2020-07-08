@@ -76,9 +76,7 @@ public class AudioInputServlet extends HttpServlet {
   }
 
   private Output handleForeignQuery(ByteString bytestring, String language) {
-    System.out.println("LANGUAGE : " + language);
     String languageCode = AgentUtils.getLanguageCode(language);
-    System.out.println("CODE: " + languageCode);
     String detectedUserInputString =
         AudioUtils.detectSpeechLanguage(bytestring.toByteArray(), languageCode);
     String englishLanguageCode = AgentUtils.getLanguageCode("English");
@@ -106,7 +104,9 @@ public class AudioInputServlet extends HttpServlet {
         TranslateAgent.translate(fulfillment, englishLanguageCode, languageCode)
             .getTranslatedText();
     byte[] byteArray = AgentUtils.getByteStringToByteArray(fulfillmentTranslation, languageCode);
-    Output languageOutput = new Output(userInputTranslation, fulfillmentTranslation, byteArray);
+    Output languageOutput =
+        new Output(
+            userInputTranslation, fulfillmentTranslation, byteArray, englishOutput.getIntentName());
     return languageOutput;
   }
 }

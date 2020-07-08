@@ -79,7 +79,8 @@ public class AgentUtils {
     }
     byteStringToByteArray = getByteStringToByteArray(fulfillment, languageCode);
     Output output =
-        new Output(detectedInput, fulfillment, byteStringToByteArray, display, redirect);
+        new Output(
+            detectedInput, fulfillment, byteStringToByteArray, display, redirect, detectedIntent);
     return output;
   }
 

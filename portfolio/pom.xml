@@ -166,7 +166,7 @@
         <version>2.19.1</version>
         <configuration>
           <redirectTestOutputToFile>true</redirectTestOutputToFile>
-          <!-- <skipTests>true</skipTests> -->
+          <skipTests>true</skipTests>
           <!-- <useFile>false</useFile> -->
         </configuration>
       </plugin>

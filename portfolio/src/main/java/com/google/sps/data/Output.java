@@ -8,24 +8,22 @@ public final class Output {
   private final byte[] byteStringToByteArray;
   private final String display;
   private final String redirect;
+  private final String intent;
 
   // Constructor without display
-  public Output(String userInput, String fulfillmentText, byte[] byteStringToByteArray) {
-    this.userInput = userInput;
-    this.fulfillmentText = fulfillmentText;
-    this.byteStringToByteArray = byteStringToByteArray;
-    this.display = null;
-    this.redirect = null;
+  public Output(
+      String userInput, String fulfillmentText, byte[] byteStringToByteArray, String intent) {
+    this(userInput, fulfillmentText, byteStringToByteArray, null, null, intent);
   }
 
   // Constructor with display
   public Output(
-      String userInput, String fulfillmentText, byte[] byteStringToByteArray, String display) {
-    this.userInput = userInput;
-    this.fulfillmentText = fulfillmentText;
-    this.byteStringToByteArray = byteStringToByteArray;
-    this.display = display;
-    this.redirect = null;
+      String userInput,
+      String fulfillmentText,
+      byte[] byteStringToByteArray,
+      String display,
+      String intent) {
+    this(userInput, fulfillmentText, byteStringToByteArray, display, null, intent);
   }
 
   // Constructor with display and redirect
@@ -34,12 +32,14 @@ public final class Output {
       String fulfillmentText,
       byte[] byteStringToByteArray,
       String display,
-      String redirect) {
+      String redirect,
+      String intent) {
     this.userInput = userInput;
     this.fulfillmentText = fulfillmentText;
     this.byteStringToByteArray = byteStringToByteArray;
     this.display = display;
     this.redirect = redirect;
+    this.intent = intent;
   }
 
   public String getUserInput() {
@@ -60,5 +60,9 @@ public final class Output {
 
   public String getRedirect() {
     return this.redirect;
+  }
+
+  public String getIntent() {
+    return this.intent;
   }
 }
