@@ -102,7 +102,7 @@ public class BooksAgent implements Agent {
       ArrayList<Book> booksToDisplay =
           BooksMemoryUtils.getStoredBooksToDisplay(displayNum, startIndex);
       this.display = bookListToString(booksToDisplay);
-      this.output = "Here's the next page of results";
+      this.output = "Here's the next page of results.";
 
     } else if (intentName.equals("previous")) {
       // Load BookQuery, totalResults, resultsStored
@@ -120,7 +120,7 @@ public class BooksAgent implements Agent {
         // Replace indices
         BooksMemoryUtils.deleteStoredEntities("Indices");
         BooksMemoryUtils.storeIndices(startIndex, totalResults, resultsStored);
-        this.output = "Here's the previous page of results";
+        this.output = "Here's the previous page of results.";
       }
       ArrayList<Book> booksToDisplay =
           BooksMemoryUtils.getStoredBooksToDisplay(displayNum, startIndex);

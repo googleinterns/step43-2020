@@ -36,7 +36,7 @@ import java.util.ArrayList;
 public class Book implements Serializable {
 
   private String title;
-  private ArrayList<String> authors;
+  private String authors;
   private String publishedDate;
   private String description;
   private String averageRating;
@@ -76,7 +76,7 @@ public class Book implements Serializable {
    */
   private Book(Volume volume) {
     setTitle(volume);
-    setAuthorList(volume);
+    setAuthors(volume);
     setPublishedDate(volume);
     setDescription(volume);
     setRating(volume);
@@ -96,11 +96,12 @@ public class Book implements Serializable {
     this.description = volume.getVolumeInfo().getDescription();
   }
 
-  private void setAuthorList(Volume volume) {
+  private void setAuthors(Volume volume) {
     if (volume.getVolumeInfo().getAuthors() != null) {
-      this.authors = new ArrayList<String>(volume.getVolumeInfo().getAuthors());
+      ArrayList<String> authors = new ArrayList<String>(volume.getVolumeInfo().getAuthors());
+      this.authors = String.join(", ", authors);
     } else {
-      this.authors = new ArrayList<String>();
+      this.authors = "";
     }
   }
 
@@ -186,7 +187,7 @@ public class Book implements Serializable {
     return this.title;
   }
 
-  public ArrayList<String> getAuthors() {
+  public String getAuthors() {
     return this.authors;
   }
 

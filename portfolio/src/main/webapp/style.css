@@ -337,3 +337,77 @@ li:nth-child(odd) {
    background-color: gray;
    color: black;
 }
+
+.book-table {
+  background-color: rgba(255, 255, 255, 50%);
+  color: rgb(58, 56, 56);
+}
+
+.book-div {
+  background-color: rgba(255, 255, 255);
+  color: rgb(58, 56, 56);
+}
+
+.book-row {
+  background-color: rgba(255, 255, 255);
+  color: rgb(58, 56, 56);
+}
+
+td.book-thumbnail {
+  width: 10px;
+  padding: 5px;
+}
+
+td.book-about {
+  padding: 10px;
+  width:1%;
+  white-space:nowrap;
+}
+
+td.book-info {
+  padding: 10px;
+  text-align: left;
+}
+
+td.book-links {
+  padding: 10px;
+  width:1%;
+  white-space:nowrap;
+  text-align: left;
+}
+
+img.thumbnail {
+  max-height: 100px;
+}
+
+p.book {
+  color: hsl(0, 2%, 22%);
+  font-size: 14px;
+}
+
+button.book-button {
+  color: hsl(0, 2%, 30%);
+  border-color: hsl(0, 2%, 70%);
+  border-width: 1px;
+  border-style: solid;
+  border-radius: 8px;
+  padding: 3px;
+  font-size: 12px;
+}
+
+button.book-button:hover,button.book-button:focus {
+  background: none;
+  color: hsl(0, 2%, 22%);
+  border-color: #4c8bf5;
+  box-shadow: inset 0px 0px 10px rgba(255, 255, 255, 1);
+}
+
+a.book-link {
+  background: none;
+  color: hsl(0, 2%, 22%);
+}
+
+a.book-link:hover,a.book-link:focus {
+  background: none;
+  color: #4c8bf5;
+}
