@@ -411,3 +411,18 @@ a.book-link:hover,a.book-link:focus {
   background: none;
   color: #4c8bf5;
 }
+
+td.prev-column {
+  text-align: left;
+  padding-left: 10px;
+}
+
+td.more-column {
+  text-align: right;
+  padding-right: 10px;
+}
+
+td.page-count {
+  text-align: center;
+  padding: 5px;
+}

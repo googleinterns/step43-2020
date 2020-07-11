@@ -23,6 +23,12 @@ function displayResponse(stream) {
       }
       mapContainer = nearestPlacesMap(outputAsJson.display);
       appendDisplay(mapContainer);
+    } else if (outputAsJson.intent.includes("books.search") ||
+        outputAsJson.intent.includes("books.more") ||
+        outputAsJson.intent.includes("books.previous") ||
+        outputAsJson.intent.includes("books.results")){
+      bookContainer = createBookContainer(outputAsJson.display);
+      placeBookDisplay(bookContainer, "convo-container");
     }
   }
   outputAudio(stream);

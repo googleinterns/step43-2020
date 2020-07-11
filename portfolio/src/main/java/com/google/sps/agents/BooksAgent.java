@@ -53,7 +53,7 @@ public class BooksAgent implements Agent {
         // Store BookQuery, Book results, totalResults, resultsReturned
         BooksMemoryUtils.storeBooks(results, startIndex);
         BooksMemoryUtils.storeBookQuery(query);
-        BooksMemoryUtils.storeIndices(startIndex, totalResults, resultsReturned);
+        BooksMemoryUtils.storeIndices(startIndex, totalResults, resultsReturned, displayNum);
 
         ArrayList<Book> booksToDisplay =
             BooksMemoryUtils.getStoredBooksToDisplay(displayNum, startIndex);
@@ -78,7 +78,7 @@ public class BooksAgent implements Agent {
       } else if (startIndex + displayNum <= resultsStored) {
         // Replace indices
         BooksMemoryUtils.deleteStoredEntities("Indices");
-        BooksMemoryUtils.storeIndices(startIndex, totalResults, resultsStored);
+        BooksMemoryUtils.storeIndices(startIndex, totalResults, resultsStored, displayNum);
       } else {
         // Retrieve books
         ArrayList<Book> results = BookUtils.getRequestedBooks(prevQuery, startIndex);
@@ -96,7 +96,7 @@ public class BooksAgent implements Agent {
 
           // Store Book results and indices
           BooksMemoryUtils.storeBooks(results, startIndex);
-          BooksMemoryUtils.storeIndices(startIndex, totalResults, newResultsStored);
+          BooksMemoryUtils.storeIndices(startIndex, totalResults, newResultsStored, displayNum);
         }
       }
       ArrayList<Book> booksToDisplay =
@@ -119,7 +119,7 @@ public class BooksAgent implements Agent {
       } else {
         // Replace indices
         BooksMemoryUtils.deleteStoredEntities("Indices");
-        BooksMemoryUtils.storeIndices(startIndex, totalResults, resultsStored);
+        BooksMemoryUtils.storeIndices(startIndex, totalResults, resultsStored, displayNum);
         this.output = "Here's the previous page of results.";
       }
       ArrayList<Book> booksToDisplay =

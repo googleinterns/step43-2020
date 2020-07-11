@@ -64,13 +64,16 @@ public class BooksMemoryUtils {
    * @param startIndex index to start retrieving Volume objects from
    * @param resultsStored number of results stored
    * @param totalResults total matches in Google Book API
+   * @param displayNum number of results displayed request
    */
-  public static void storeIndices(int startIndex, int totalResults, int resultsStored) {
+  public static void storeIndices(
+      int startIndex, int totalResults, int resultsStored, int displayNum) {
     long timestamp = System.currentTimeMillis();
     Entity indicesEntity = new Entity("Indices");
     indicesEntity.setProperty("startIndex", startIndex);
     indicesEntity.setProperty("resultsStored", resultsStored);
     indicesEntity.setProperty("totalResults", totalResults);
+    indicesEntity.setProperty("displayNum", displayNum);
     indicesEntity.setProperty("timestamp", timestamp);
 
     DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
@@ -167,7 +170,7 @@ public class BooksMemoryUtils {
    * This function returns the previous index specified by indexName stored in Datastore Indices
    * Entity
    *
-   * @param indexName name of Indices: startIndex, resultsStored or
+   * @param indexName name of Indices: startIndex, resultsStored, totalResults, or displayNum
    * @return int startIndex
    */
   public static int getStoredIndices(String indexName) {

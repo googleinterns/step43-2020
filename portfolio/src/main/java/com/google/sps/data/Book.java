@@ -107,7 +107,8 @@ public class Book implements Serializable {
 
   private void setPublishedDate(Volume volume) {
     if (volume.getVolumeInfo().getPublishedDate() != null) {
-      this.publishedDate = volume.getVolumeInfo().getPublishedDate();
+      String fullDate = volume.getVolumeInfo().getPublishedDate();
+      this.publishedDate = fullDate.split("-")[0];
     } else {
       this.publishedDate = "";
     }
