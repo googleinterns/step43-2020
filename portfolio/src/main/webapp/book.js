@@ -27,9 +27,9 @@ function createBookContainer(bookResults) {
     bookTable.className = "book-table";
     booksList.forEach((book) => {
       bookTable.appendChild(createBookRow(book));
-    })
+    });
     bookTable.appendChild(createTableFooter());
-    booksDiv.innerHTML = bookTable.outerHTML;
+    booksDiv.appendChild(bookTable);
     return booksDiv;
 }
 
@@ -43,13 +43,10 @@ function createBookContainer(bookResults) {
 function createTableFooter() {
   const footerRow = document.createElement('tr');
   footerRow.className = "book-row";
-  const prevColumn;
-  const pageColumn;
-  const moreColumn;
   fetch('/book').then(response => response.json()).then((indices) => {
-    prevColumn = createPrevColumn(indices);
-    pageColumn = createPageColumn(indices);
-    moreColumn = createMoreColumn(indices);
+    const prevColumn = createPrevColumn(indices);
+    const pageColumn = createPageColumn(indices);
+    const moreColumn = createMoreColumn(indices);
     footerRow.innerHTML = prevColumn + pageColumn + moreColumn;
   });
   return footerRow;
