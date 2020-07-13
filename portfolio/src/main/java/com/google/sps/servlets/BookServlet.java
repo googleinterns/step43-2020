@@ -22,7 +22,6 @@ public class BookServlet extends HttpServlet {
 
     Indices indices = new Indices(startIndex, resultsStored, totalResults, displayNum);
     String json = new Gson().toJson(indices);
-    System.out.println(json);
     response.getWriter().write(json);
   }
 }
