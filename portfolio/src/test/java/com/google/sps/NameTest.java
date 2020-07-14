@@ -3,19 +3,10 @@ package com.google.sps.agents;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
-import com.google.appengine.api.users.User;
-import com.google.appengine.api.users.UserService;
-import com.google.appengine.tools.development.testing.LocalDatastoreServiceTestConfig;
-import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
-import com.google.protobuf.Value;
+import com.google.sps.data.Output;
 import com.google.sps.servlets.TestHelper;
-import java.util.Map;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,28 +14,7 @@ import org.slf4j.LoggerFactory;
 @RunWith(MockitoJUnitRunner.Silent.class)
 public class NameTest {
 
-  @Mock UserService userServiceMock;
-
-  @InjectMocks Name name;
-
   private static Logger log = LoggerFactory.getLogger(Name.class);
-
-  private final LocalServiceTestHelper helper =
-      new LocalServiceTestHelper(new LocalDatastoreServiceTestConfig());
-
-  @Before
-  public void setUp() {
-    userServiceMock = mock(UserService.class);
-    when(userServiceMock.isUserLoggedIn()).thenReturn(true);
-    when(userServiceMock.getCurrentUser())
-        .thenReturn(new User("test@example.com", "authDomain", "1"));
-    helper.setUp();
-  }
-
-  @After
-  public void tearDown() {
-    helper.tearDown();
-  }
 
   @Test
   public void testNotLoggedIn() throws Exception {
@@ -54,14 +24,13 @@ public class NameTest {
             + "\"last-name\": \"\","
             + "\"given-name\": \"Tom\","
             + "\"type\": \"\"}";
-    Map<String, Value> params = TestHelper.stringToMap(jsonParams);
+    TestHelper tester = new TestHelper("Change my name to Tom.", jsonParams, "name.change");
+    tester.setLoggedOut();
 
-    when(userServiceMock.isUserLoggedIn()).thenReturn(false);
+    Output output = tester.getOutput();
 
-    TestableName nameAgent = new TestableName("name.user.change", params);
-
-    assertEquals("Please login to modify your name.", nameAgent.getOutput());
-    assertNull(nameAgent.getDisplay());
+    assertEquals("Please login to modify your name.", output.getFulfillmentText());
+    assertNull(output.getDisplay());
   }
 
   @Test
@@ -72,12 +41,12 @@ public class NameTest {
             + "\"last-name\": \"\","
             + "\"given-name\": \"Tom\","
             + "\"type\": \"\"}";
-    Map<String, Value> params = TestHelper.stringToMap(jsonParams);
+    TestHelper tester = new TestHelper("Change my name to Tom.", jsonParams, "name.change");
 
-    TestableName nameAgent = new TestableName("name.user.change", params);
+    Output output = tester.getOutput();
 
-    assertEquals("Changing your first name to be Tom.", nameAgent.getOutput());
-    assertEquals("Tom", nameAgent.getDisplay());
+    assertEquals("Changing your first name to be Tom.", output.getFulfillmentText());
+    assertEquals("Tom", output.getDisplay());
   }
 
   @Test
@@ -88,12 +57,12 @@ public class NameTest {
             + "\"last-name\": \"\","
             + "\"given-name\": \"Tom\","
             + "\"type\": \"first name\"}";
-    Map<String, Value> params = TestHelper.stringToMap(jsonParams);
+    TestHelper tester = new TestHelper("Change my first name to Tom.", jsonParams, "name.change");
 
-    TestableName nameAgent = new TestableName("name.user.change", params);
+    Output output = tester.getOutput();
 
-    assertEquals("Changing your first name to be Tom.", nameAgent.getOutput());
-    assertEquals("Tom", nameAgent.getDisplay());
+    assertEquals("Changing your first name to be Tom.", output.getFulfillmentText());
+    assertEquals("Tom", output.getDisplay());
   }
 
   @Test
@@ -104,12 +73,12 @@ public class NameTest {
             + "\"last-name\": \"\","
             + "\"given-name\": \"\","
             + "\"type\": \"nickname\"}";
-    Map<String, Value> params = TestHelper.stringToMap(jsonParams);
+    TestHelper tester = new TestHelper("Change my nickname to Tom.", jsonParams, "name.change");
 
-    TestableName nameAgent = new TestableName("name.user.change", params);
+    Output output = tester.getOutput();
 
-    assertEquals("Changing your nickname to be Tom.", nameAgent.getOutput());
-    assertEquals("Tom", nameAgent.getDisplay());
+    assertEquals("Changing your nickname to be Tom.", output.getFulfillmentText());
+    assertEquals("Tom", output.getDisplay());
   }
 
   @Test
@@ -120,12 +89,12 @@ public class NameTest {
             + "\"last-name\": \"\","
             + "\"given-name\": \"Tom\","
             + "\"type\": \"nickname\"}";
-    Map<String, Value> params = TestHelper.stringToMap(jsonParams);
+    TestHelper tester = new TestHelper("Change my nickname to Tom.", jsonParams, "name.change");
 
-    TestableName nameAgent = new TestableName("name.user.change", params);
+    Output output = tester.getOutput();
 
-    assertEquals("Changing your nickname to be Tom.", nameAgent.getOutput());
-    assertEquals("Tom", nameAgent.getDisplay());
+    assertEquals("Changing your nickname to be Tom.", output.getFulfillmentText());
+    assertEquals("Tom", output.getDisplay());
   }
 
   @Test
@@ -136,12 +105,12 @@ public class NameTest {
             + "\"last-name\": \"Tom\","
             + "\"given-name\": \"\","
             + "\"type\": \"last name\"}";
-    Map<String, Value> params = TestHelper.stringToMap(jsonParams);
+    TestHelper tester = new TestHelper("Change my last name to Tom.", jsonParams, "name.change");
 
-    TestableName nameAgent = new TestableName("name.user.change", params);
+    Output output = tester.getOutput();
 
-    assertEquals("Changing your last name to be Tom.", nameAgent.getOutput());
-    assertEquals("test@example.com", nameAgent.getDisplay());
+    assertEquals("Changing your last name to be Tom.", output.getFulfillmentText());
+    assertEquals("test@example.com", output.getDisplay());
   }
 
   @Test
@@ -152,12 +121,13 @@ public class NameTest {
             + "\"last-name\": \"\","
             + "\"given-name\": \"\","
             + "\"type\": \"nickname\"}";
-    Map<String, Value> params = TestHelper.stringToMap(jsonParams);
+    TestHelper tester = new TestHelper("Change my nickname to Tom.", jsonParams, "name.change");
 
-    TestableName nameAgent = new TestableName("name.user.change", params);
+    Output output = tester.getOutput();
 
-    assertEquals("I'm sorry, I didn't catch the name. Can you repeat that?", nameAgent.getOutput());
-    assertNull(nameAgent.getDisplay());
+    assertEquals(
+        "I'm sorry, I didn't catch the name. Can you repeat that?", output.getFulfillmentText());
+    assertNull(output.getDisplay());
   }
 
   @Test
@@ -170,12 +140,13 @@ public class NameTest {
             + "\"last-name\": \"\","
             + "\"given-name\": \"Tom\","
             + "\"type\": \"\"}";
-    Map<String, Value> params = TestHelper.stringToMap(jsonParams);
 
-    TestableName nameAgent = new TestableName("name.user.change", params);
+    TestHelper tester = new TestHelper("Change my name to Tom.", jsonParams, "name.change");
 
-    assertEquals("Changing your first name to be Tom.", nameAgent.getOutput());
-    assertEquals("Tom", nameAgent.getDisplay());
+    Output output = tester.getOutput();
+
+    assertEquals("Changing your first name to be Tom.", output.getFulfillmentText());
+    assertEquals("Tom", output.getDisplay());
 
     // Set nickname to be NicknameTom -- should output display name as NicknameTom since nickname >
     // name
@@ -185,12 +156,12 @@ public class NameTest {
             + "\"last-name\": \"\","
             + "\"given-name\": \"NicknameTom\","
             + "\"type\": \"nickname\"}";
-    params = TestHelper.stringToMap(jsonParams);
+    tester.setParameters("Change my nickname to Tom.", jsonParams, "name.change");
 
-    nameAgent.setParameters(params);
+    output = tester.getOutput();
 
-    assertEquals("Changing your nickname to be NicknameTom.", nameAgent.getOutput());
-    assertEquals("NicknameTom", nameAgent.getDisplay());
+    assertEquals("Changing your nickname to be NicknameTom.", output.getFulfillmentText());
+    assertEquals("NicknameTom", output.getDisplay());
 
     // Set name to be NameTom -- should output display name as NicknameTom since nickname exists and
     // nickname > name
@@ -200,12 +171,12 @@ public class NameTest {
             + "\"last-name\": \"\","
             + "\"given-name\": \"NameTom\","
             + "\"type\": \"first name\"}";
-    params = TestHelper.stringToMap(jsonParams);
+    tester.setParameters("Change my first name to NameTom.", jsonParams, "name.change");
 
-    nameAgent.setParameters(params);
+    output = tester.getOutput();
 
-    assertEquals("Changing your first name to be NameTom.", nameAgent.getOutput());
-    assertEquals("NicknameTom", nameAgent.getDisplay());
+    assertEquals("Changing your first name to be NameTom.", output.getFulfillmentText());
+    assertEquals("NicknameTom", output.getDisplay());
 
     // Set last name to be LastNameTom -- should output display name as NicknameTom since last name
     // never displayed
@@ -215,12 +186,12 @@ public class NameTest {
             + "\"last-name\": \"\","
             + "\"given-name\": \"LastNameTom\","
             + "\"type\": \"last name\"}";
-    params = TestHelper.stringToMap(jsonParams);
+    tester.setParameters("Change my first name to NameTom.", jsonParams, "name.change");
 
-    nameAgent.setParameters(params);
+    output = tester.getOutput();
 
-    assertEquals("Changing your last name to be LastNameTom.", nameAgent.getOutput());
-    assertEquals("NicknameTom", nameAgent.getDisplay());
+    assertEquals("Changing your last name to be LastNameTom.", output.getFulfillmentText());
+    assertEquals("NicknameTom", output.getDisplay());
 
     // Set nickname to be NewNicknameTom -- should output display name as NicknameTom since nickname
     // > name
@@ -230,23 +201,11 @@ public class NameTest {
             + "\"last-name\": \"\","
             + "\"given-name\": \"NewNicknameTom\","
             + "\"type\": \"nickname\"}";
-    params = TestHelper.stringToMap(jsonParams);
+    tester.setParameters("Change my nickname to NewNicknameTom.", jsonParams, "name.change");
 
-    nameAgent.setParameters(params);
+    output = tester.getOutput();
 
-    assertEquals("Changing your nickname to be NewNicknameTom.", nameAgent.getOutput());
-    assertEquals("NewNicknameTom", nameAgent.getDisplay());
-  }
-
-  private class TestableName extends Name {
-
-    TestableName(String intentName, Map<String, Value> parameters) {
-      super(intentName, parameters);
-    }
-
-    @Override
-    public UserService createUserService() {
-      return userServiceMock;
-    }
+    assertEquals("Changing your nickname to be NewNicknameTom.", output.getFulfillmentText());
+    assertEquals("NewNicknameTom", output.getDisplay());
   }
 }

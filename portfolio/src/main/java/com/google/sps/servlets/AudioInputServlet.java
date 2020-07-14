@@ -14,6 +14,10 @@
 
 package com.google.sps.servlets;
 
+import com.google.appengine.api.datastore.DatastoreService;
+import com.google.appengine.api.datastore.DatastoreServiceFactory;
+import com.google.appengine.api.users.UserService;
+import com.google.appengine.api.users.UserServiceFactory;
 import com.google.cloud.translate.*;
 import com.google.gson.Gson;
 import com.google.protobuf.ByteString;
@@ -34,6 +38,9 @@ import javax.servlet.http.HttpServletResponse;
 /** Servlet that takes in audio stream and retrieves * user input string to display. */
 @WebServlet("/audio-input")
 public class AudioInputServlet extends HttpServlet {
+
+  private DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+  private UserService userService = UserServiceFactory.getUserService();
 
   @Override
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -65,7 +72,7 @@ public class AudioInputServlet extends HttpServlet {
     if (result == null) {
       return null;
     }
-    return AgentUtils.getOutput(result, languageCode);
+    return AgentUtils.getOutput(result, languageCode, userService, datastore);
   }
 
   private Output handleForeignQuery(ByteString bytestring, String language) {
