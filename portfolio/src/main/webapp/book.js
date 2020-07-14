@@ -1,6 +1,6 @@
 /**
  * This function places a book div element in the container specified by the 
- * parameter and updates the scroll to the top of the table displayed
+ * parameter and updates the scroll to the top of the table displayed 
  *
  * @param bookDiv element containing book table
  * @param query container to place book table in
