@@ -29,6 +29,9 @@ function displayResponse(stream) {
         outputAsJson.intent.includes("books.results")){
       bookContainer = createBookContainer(outputAsJson.display);
       placeBookDisplay(bookContainer, "convo-container");
+    } else if (outputAsJson.intent.includes("workout.find")) {
+      workoutContainer = workoutVideos(outputAsJson.display);
+      appendDisplay(workoutContainer);
     }
   }
   outputAudio(stream);

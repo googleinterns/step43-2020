@@ -133,6 +133,8 @@ public class AgentUtils {
         return new Weather(intentName, parameterMap);
       case "web":
         return new WebSearch(intentName, parameterMap);
+      case "workout":
+        return new WorkoutAgent(intentName, parameterMap);
       default:
         return null;
     }
