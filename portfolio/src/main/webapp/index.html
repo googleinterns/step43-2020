@@ -7,6 +7,10 @@
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400&display=swap" rel="stylesheet">
     <script src="https://maps.googleapis.com/maps/api/js?key=API_KEY&libraries=places"></script> 
+        <script type="text/javascript" src="https://www.google.com/books/jsapi.js"></script>
+    <script type="text/javascript">
+      google.books.load();
+    </script>
   </head>
 
   <body onload="authSetup()">
@@ -14,7 +18,7 @@
     <div id="header">
       <div name="greeting"><h1>Hi, what can I help you with?</h1></div>
       <section class="main-controls">
-        <canvas class="visualizer" height="60px"></canvas>
+        <canvas class="visualizer" height="40px"></canvas>
       </section>
     </div> 
       

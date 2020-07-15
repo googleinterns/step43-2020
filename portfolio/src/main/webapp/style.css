@@ -105,8 +105,8 @@ p {
  
 #content {
   position:absolute; 
-  top: 200px; 
-  bottom: 200px; 
+  top: 150px; 
+  bottom: 150px; 
   overflow: auto;
   width: 90%;
   max-width: 850px;
@@ -183,6 +183,7 @@ canvas {
 #buttons {
   display: flex;
   justify-content: center;
+  height: 55px;
 }
  
 #buttons button {
@@ -473,4 +474,17 @@ td.more-column {
 td.page-count {
   text-align: center;
   padding: 5px;
+}
+
+p.description {
+  color: hsl(0, 2%, 22%);
+  font-size: 14px;
+  text-align: left;
+  padding: 10px;
+}
+
+.book-viewer {
+  width: 600px;
+  height: 400px;
+  text-align: center;
 }

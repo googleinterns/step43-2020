@@ -125,26 +125,44 @@ public class BooksAgent implements Agent {
       ArrayList<Book> booksToDisplay =
           BooksMemoryUtils.getStoredBooksToDisplay(displayNum, startIndex);
       this.display = bookListToString(booksToDisplay);
-    } else if (intentName.equals("about")) {
-      // TODO: Load Book results, totalResults, resultsReturned
 
-      // TODO: Get information about requested Book
-      // TODO: Make output information
+    } else if (intentName.equals("description")) {
+      // Get requested order number from parameters
+      int orderNum = (int) parameters.get("number").getNumberValue();
 
-      // TODO: Don't change any stored information
+      // Retrieve requested book
+      int prevStartIndex = BooksMemoryUtils.getStoredIndices("startIndex");
+      Book requestedBook = BooksMemoryUtils.getBookFromOrderNum(orderNum, prevStartIndex);
+
+      // Set output and display information
+      this.output = "Here's a description for " + requestedBook.getTitle() + ".";
+      this.display = bookToString(requestedBook);
+      // Don't change any stored information
     } else if (intentName.equals("preview")) {
-      // TODO: Load Book results, totalResults, resultsReturned
+      // Get requested order number from parameters
+      int orderNum = (int) parameters.get("number").getNumberValue();
 
-      // TODO: Get information about requested Book
-      // TODO: Make output information
+      // Retrieve requested book
+      int prevStartIndex = BooksMemoryUtils.getStoredIndices("startIndex");
+      Book requestedBook = BooksMemoryUtils.getBookFromOrderNum(orderNum, prevStartIndex);
 
-      // TODO: Don't change any stored information
+      // Set output and display information
+      this.output = "Here's a preview of " + requestedBook.getTitle() + ".";
+      this.display = bookToString(requestedBook);
+      // Don't change any stored information
+
     } else if (intentName.equals("results")) {
-      // TODO: Load Book results, totalResults, resultsReturned
+      // Load Book results, totalResults, resultsReturned
+      BookQuery prevQuery = BooksMemoryUtils.getStoredBookQuery();
+      int prevStartIndex = BooksMemoryUtils.getStoredIndices("startIndex");
+      int resultsStored = BooksMemoryUtils.getStoredIndices("resultsStored");
+      int totalResults = BooksMemoryUtils.getStoredIndices("totalResults");
+      ArrayList<Book> booksToDisplay =
+          BooksMemoryUtils.getStoredBooksToDisplay(displayNum, prevStartIndex);
 
-      // TODO: Get output information from stored Book results
-
-      // TODO: Don't change any stored information
+      this.display = bookListToString(booksToDisplay);
+      this.output = "Here are the results.";
+      // Don't change any stored information
     }
   }
 
@@ -169,6 +187,11 @@ public class BooksAgent implements Agent {
       return nextIndex;
     }
     return -1;
+  }
+
+  private String bookToString(Book book) {
+    Gson gson = new Gson();
+    return gson.toJson(book);
   }
 
   private String bookListToString(ArrayList<Book> books) {

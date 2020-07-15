@@ -46,6 +46,7 @@ public class Book implements Serializable {
   private Boolean embeddable;
   private String isbn;
   private String textSnippet;
+  private int order;
 
   /**
    * Creates a Book object from a valid Volume object that will be used to build virtual assistant
@@ -86,6 +87,10 @@ public class Book implements Serializable {
     setEmbeddable(volume);
     setISBN(volume);
     setTextSnippet(volume);
+  }
+
+  public void setOrder(int order) {
+    this.order = order;
   }
 
   private void setTitle(Volume volume) {
@@ -182,6 +187,10 @@ public class Book implements Serializable {
       return;
     }
     this.textSnippet = "";
+  }
+
+  public int getOrder() {
+    return this.order;
   }
 
   public String getTitle() {
