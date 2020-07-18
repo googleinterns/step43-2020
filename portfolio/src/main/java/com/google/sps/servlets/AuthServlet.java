@@ -24,7 +24,7 @@ public class AuthServlet extends HttpServlet {
     response.setContentType("application/json");
     PrintWriter out = response.getWriter();
 
-    String loginUrl = userService.createLoginURL("/index.html");
+    String loginUrl = userService.createLoginURL("/oauth2");
     String authText;
     String displayName;
     String logButton;

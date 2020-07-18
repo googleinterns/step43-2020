@@ -9,6 +9,7 @@ import com.google.sps.data.Book;
 import com.google.sps.data.BookQuery;
 import com.google.sps.utils.BookUtils;
 import com.google.sps.utils.BooksMemoryUtils;
+import com.google.sps.utils.OAuthHelper;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Map;
@@ -182,6 +183,26 @@ public class BooksAgent implements Agent {
       setBookListDisplay();
       this.output = "Here are the results.";
       this.redirect = queryID;
+    } else {
+      // All other intents require users to be logged in
+      if (!userService.isUserLoggedIn()) {
+        this.output = "Please login first.";
+        return;
+      }
+      String userID = userService.getCurrentUser().getUserId();
+      if (intentName.equals("library")) {
+        if (!hasBookAuthentication(userID)) {
+          this.output = "Please allow me to access your Google Books account first.";
+          this.redirect =
+              "https://8080-fabf4299-6bc0-403a-9371-600927588310.us-west1.cloudshell.dev/oauth2";
+          return;
+        }
+      }
+      BookUtils.getBookshelves(userID);
+      // Get Library Name
+      // Perform BookSearch
+      // if (results > 0) handle new query success
+      // set fulfillment
     }
   }
 
@@ -198,6 +219,17 @@ public class BooksAgent implements Agent {
   @Override
   public String getRedirect() {
     return this.redirect;
+  }
+
+  /**
+   * This function determines if the current user has stored book credentials
+   *
+   * @param userID ID of current user logged in
+   * @return boolean indicating if user has book credentials
+   */
+  private boolean hasBookAuthentication(String userID) throws IOException {
+    OAuthHelper helper = new OAuthHelper();
+    return (helper.loadUserCredential(userID) != null);
   }
 
   /**

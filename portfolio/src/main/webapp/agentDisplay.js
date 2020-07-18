@@ -7,7 +7,7 @@ const streamingContainer = document.getElementsByName('streaming')[0];
 */
 function displayResponse(stream) {
   var outputAsJson = JSON.parse(stream);
-  if (!outputAsJson.intent.includes("books")) {
+  if (!outputAsJson.intent.includes("books") || !outputAsJson.display) {
     placeUserInput(outputAsJson.userInput, "convo-container");
     placeFulfillmentResponse(outputAsJson.fulfillmentText);
   }

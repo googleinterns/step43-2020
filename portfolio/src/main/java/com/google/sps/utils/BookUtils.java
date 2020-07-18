@@ -1,9 +1,12 @@
 package com.google.sps.utils;
 
+import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.client.extensions.appengine.http.UrlFetchTransport;
 import com.google.api.client.json.gson.GsonFactory;
 import com.google.api.services.books.*;
+import com.google.api.services.books.Books;
 import com.google.api.services.books.Books.Volumes.List;
+import com.google.api.services.books.model.Bookshelves;
 import com.google.api.services.books.model.Volume;
 import com.google.api.services.books.model.Volumes;
 import com.google.gson.*;
@@ -122,5 +125,32 @@ public class BookUtils {
       return books;
     }
     return new ArrayList<>();
+  }
+
+  /**
+   * This function returns a Bookshelves object containing the Bookshelves from the Google Books API
+   * that match the authenticated user's bookshelves and throws an exception otherwise
+   *
+   * @param userID unique userID
+   * @return Volumes object of results
+   */
+  public static void getBookshelves(String userID) throws IOException {
+    OAuthHelper helper = new OAuthHelper();
+    Credential credential = helper.loadUserCredential(userID);
+    if (credential.getExpiresInSeconds() <= 0) {
+      if (credential.refreshToken()) {
+        continue;
+      }
+    }
+    System.out.println(credential.getMethod());
+    System.out.println(credential.getAccessToken());
+    System.out.println(credential.getExpiresInSeconds());
+    System.out.println(credential.getTokenServerEncodedUrl());
+    System.out.println(credential.getRefreshToken());
+
+    Books books = getBooksContext();
+    Bookshelves bookshelves =
+        books.mylibrary().bookshelves().list().setOauthToken(credential.getAccessToken()).execute();
+    System.out.println(bookshelves);
   }
 }
