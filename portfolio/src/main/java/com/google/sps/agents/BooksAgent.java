@@ -182,6 +182,38 @@ public class BooksAgent implements Agent {
       setBookListDisplay();
       this.output = "Here are the results.";
       this.redirect = queryID;
+    } else {
+      // All other intents require users to be logged in
+      if (!userService.isUserLoggedIn()) {
+        this.output = "Please login first.";
+        return;
+      }
+      String userID = userService.getCurrentUser().getUserId();
+      if (intentName.equals("library")) {
+        if (!hasBookAuthentication(userID)) {
+          // Get valid authentication
+          this.output = "Please allow me to access your Google Books account first.";
+          this.redirect =
+              "https://8080-fabf4299-6bc0-403a-9371-600927588310.us-west1.cloudshell.dev/oauth2";
+          return;
+        }
+        ArrayList<String> shelvesNames = BookUtils.getBookshelvesNames(userID);
+        System.out.println(shelvesNames);
+        // If unspecified bookshelf, or invalid bookshelf name
+        if (parameters.get("bookshelf") == null
+            || !shelvesNames.contains(parameters.get("bookshelf").getStringValue())) {
+          this.output = "Which bookshelf would you like to see?";
+          this.display = listToString(shelvesNames);
+          return;
+        } else {
+          // Get requested bookshelf name
+          String requestedShelf = parameters.get("bookshelf").getStringValue();
+          // Perform BookSearch
+          // if (results > 0) handle new query success
+          // set fulfillment
+
+        }
+      }
     }
   }
 
@@ -274,7 +306,12 @@ public class BooksAgent implements Agent {
     return gson.toJson(book);
   }
 
-  public static String bookListToJson(ArrayList<Book> books) {
+  private String listToString(ArrayList<String> list) {
+    Gson gson = new Gson();
+    return gson.toJson(list);
+  }
+
+  private String bookListToString(ArrayList<Book> books) {
     Gson gson = new Gson();
     return gson.toJson(books);
   }
