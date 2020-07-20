@@ -192,17 +192,29 @@ public class BooksAgent implements Agent {
       String userID = userService.getCurrentUser().getUserId();
       if (intentName.equals("library")) {
         if (!hasBookAuthentication(userID)) {
+          // Get valid authentication
           this.output = "Please allow me to access your Google Books account first.";
           this.redirect =
               "https://8080-fabf4299-6bc0-403a-9371-600927588310.us-west1.cloudshell.dev/oauth2";
           return;
         }
+        ArrayList<String> shelvesNames = BookUtils.getBookshelvesNames(userID);
+        System.out.println(shelvesNames);
+        // If unspecified bookshelf, or invalid bookshelf name
+        if (parameters.get("bookshelf") == null
+            || !shelvesNames.contains(parameters.get("bookshelf").getStringValue())) {
+          this.output = "Which bookshelf would you like to see?";
+          this.display = listToString(shelvesNames);
+          return;
+        } else {
+          // Get requested bookshelf name
+          String requestedShelf = parameters.get("bookshelf").getStringValue();
+          // Perform BookSearch
+          // if (results > 0) handle new query success
+          // set fulfillment
+
+        }
       }
-      BookUtils.getBookshelves(userID);
-      // Get Library Name
-      // Perform BookSearch
-      // if (results > 0) handle new query success
-      // set fulfillment
     }
   }
 

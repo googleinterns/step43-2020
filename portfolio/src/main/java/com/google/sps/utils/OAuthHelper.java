@@ -44,15 +44,6 @@ public class OAuthHelper {
    * @return AuthorizationCodeFlow
    */
   public static AuthorizationCodeFlow createFlow() throws IOException {
-    /*return new AuthorizationCodeFlow.Builder(BearerToken.authorizationHeaderAccessMethod(),
-        new NetHttpTransport(),
-        new JacksonFactory(),
-        new GenericUrl("https://oauth2.googleapis.com/token"),
-        new BasicAuthentication(getClientID(), getClientSecret()),
-        getClientID(),
-        "https://accounts.google.com/o/oauth2/auth").setScopes(BooksScopes.all()).setCredentialDataStore(
-            StoredCredential.getDefaultDataStore(AppEngineDataStoreFactory.getDefaultInstance())).build();
-    */
     return new GoogleAuthorizationCodeFlow.Builder(
             new NetHttpTransport(),
             JacksonFactory.getDefaultInstance(),

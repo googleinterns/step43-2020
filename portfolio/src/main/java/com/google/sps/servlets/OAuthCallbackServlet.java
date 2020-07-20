@@ -24,7 +24,6 @@ public class OAuthCallbackServlet extends AbstractAuthorizationCodeCallbackServl
   protected void onSuccess(HttpServletRequest req, HttpServletResponse resp, Credential credential)
       throws ServletException, IOException {
     System.out.println("Success callback servlet");
-    System.out.println("Callback servlet: onSuccess");
     System.out.println("Credential: " + credential.getAccessToken());
     resp.sendRedirect("/");
   }
