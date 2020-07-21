@@ -44,6 +44,7 @@ public class BookQuery implements Serializable {
   private String title;
   private String order;
   private String language;
+  private String bookshelfName;
   private String queryString;
 
   /**
@@ -83,6 +84,7 @@ public class BookQuery implements Serializable {
     setTitle(parameters.get("title"));
     setOrder(parameters.get("order"));
     setLanguage(parameters.get("language"));
+    setBookshelf(parameters.get("bookshelf"));
     setQueryString();
   }
 
@@ -150,6 +152,16 @@ public class BookQuery implements Serializable {
       queryText += "+" + this.title;
     }
     this.queryString = queryText;
+  }
+
+  private void setBookshelf(Value paramValue) {
+    if (paramValue != null && !paramValue.getStringValue().isEmpty()) {
+      this.bookshelfName = paramValue.getStringValue();
+    }
+  }
+
+  public String getBookshelfName() {
+    return this.bookshelfName;
   }
 
   public String getTitle() {
