@@ -32,9 +32,11 @@ function displayResponse(stream) {
       appendDisplay(mapContainer);
     } else if (outputAsJson.intent.includes("books.search") ||
         outputAsJson.intent.includes("books.more") ||
-        outputAsJson.intent.includes("books.previous") ||
+        outputAsJson.intent.includes("books.previous") || 
+        outputAsJson.intent.includes("books.library") ||
         outputAsJson.intent.includes("books.results")) {
-      if (!outputAsJson.intent.includes("books.search")){
+      if (!outputAsJson.intent.includes("books.search") && 
+         !outputAsJson.intent.includes("books.library")){
         clearPreviousDisplay(outputAsJson.redirect);
       }
       placeBooksUserInput(outputAsJson.userInput, "convo-container", outputAsJson.redirect);
