@@ -191,6 +191,7 @@ public class BooksAgent implements Agent {
       }
       String userID = userService.getCurrentUser().getUserId();
       if (intentName.equals("library")) {
+
         if (!hasBookAuthentication(userID)) {
           // Get valid authentication
           this.output = "Please allow me to access your Google Books account first.";
@@ -198,17 +199,25 @@ public class BooksAgent implements Agent {
               "https://8080-fabf4299-6bc0-403a-9371-600927588310.us-west1.cloudshell.dev/oauth2";
           return;
         }
-        ArrayList<String> shelvesNames = BookUtils.getBookshelvesNames(userID);
+        ArrayList<String> shelvesNames = BookUtils.getBookshelvesNames(userID, true);
         System.out.println(shelvesNames);
         // If unspecified bookshelf, or invalid bookshelf name
         if (parameters.get("bookshelf") == null
-            || !shelvesNames.contains(parameters.get("bookshelf").getStringValue())) {
+            || !shelvesNames.contains(parameters.get("bookshelf").getStringValue().toLowerCase())) {
+          ArrayList<String> displayNames = BookUtils.getBookshelvesNames(userID, false);
           this.output = "Which bookshelf would you like to see?";
           this.display = listToString(shelvesNames);
           return;
         } else {
-          // Get requested bookshelf name
-          String requestedShelf = parameters.get("bookshelf").getStringValue();
+          // Create BookQuery
+          this.query = BookQuery.createBookQuery(this.userInput, parameters);
+          this.startIndex = 0;
+
+          // Retrieve books from BookQuery
+          this.bookResults = BookUtils.getBookShelfBooks(query, startIndex, userID);
+          this.totalResults = BookUtils.getTotalShelfVolumesFound(query, startIndex, userID);
+          this.resultsReturned = bookResults.size();
+          System.out.println(bookListToString(bookResults));
           // Perform BookSearch
           // if (results > 0) handle new query success
           // set fulfillment
