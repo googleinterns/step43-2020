@@ -161,7 +161,6 @@ public class BookUtils {
 
     Books books = getBooksContext(credential);
     Bookshelves bookshelves = books.mylibrary().bookshelves().list().execute();
-    System.out.println(bookshelves);
     return bookshelves;
   }
 

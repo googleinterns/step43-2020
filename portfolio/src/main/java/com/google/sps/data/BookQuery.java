@@ -156,7 +156,8 @@ public class BookQuery implements Serializable {
 
   private void setBookshelf(Value paramValue) {
     if (paramValue != null && !paramValue.getStringValue().isEmpty()) {
-      this.bookshelfName = paramValue.getStringValue();
+      String name = paramValue.getStringValue();
+      this.bookshelfName = name.substring(0, 1).toUpperCase() + name.substring(1);
     }
   }
 
