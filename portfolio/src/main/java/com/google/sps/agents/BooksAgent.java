@@ -190,7 +190,6 @@ public class BooksAgent implements Agent {
       }
       String userID = userService.getCurrentUser().getUserId();
       if (intentName.equals("library")) {
-
         if (!hasBookAuthentication(userID)) {
           // Get valid authentication
           this.output = "Please allow me to access your Google Books account first.";
@@ -199,7 +198,7 @@ public class BooksAgent implements Agent {
           return;
         }
         ArrayList<String> shelvesNames = BookUtils.getBookshelvesNames(userID, true);
-        System.out.println(shelvesNames);
+
         // If unspecified bookshelf, or invalid bookshelf name
         if (parameters.get("bookshelf") == null
             || !shelvesNames.contains(parameters.get("bookshelf").getStringValue().toLowerCase())) {
@@ -216,11 +215,13 @@ public class BooksAgent implements Agent {
           this.bookResults = BookUtils.getBookShelfBooks(query, startIndex, userID);
           this.totalResults = BookUtils.getTotalShelfVolumesFound(query, startIndex, userID);
           this.resultsReturned = bookResults.size();
-          System.out.println(bookListToString(bookResults));
-          // Perform BookSearch
-          // if (results > 0) handle new query success
-          // set fulfillment
 
+          if (resultsReturned > 0) {
+            handleNewQuerySuccess();
+            this.output = "Here are the books in your " + query.getBookshelfName() + " bookshelf.";
+          } else {
+            this.output = "There are no books in your " + query.getBookshelfName() + " bookshelf.";
+          }
         }
       }
     }
