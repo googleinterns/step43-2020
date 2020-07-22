@@ -31,7 +31,8 @@ public class OAuthServlet extends AbstractAuthorizationCodeServlet {
 
   @Override
   protected AuthorizationCodeFlow initializeFlow() throws IOException {
-    return OAuthHelper.createFlow();
+    String userID = userService.getCurrentUser().getUserId();
+    return OAuthHelper.createFlow(userID);
   }
 
   @Override

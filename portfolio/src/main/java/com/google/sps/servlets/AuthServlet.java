@@ -8,6 +8,7 @@ import com.google.gson.Gson;
 import com.google.sps.utils.UserUtils;
 import java.io.IOException;
 import java.io.PrintWriter;
+import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -44,6 +45,21 @@ public class AuthServlet extends HttpServlet {
     String json = new Gson().toJson(output);
     System.out.println(json);
     response.getWriter().write(json);
+  }
+
+  @Override
+  public void doPost(HttpServletRequest request, HttpServletResponse response)
+      throws IOException, ServletException {
+    System.out.println("Got to auth servlet");
+    if (userService.isUserLoggedIn()) {
+      // response.sendRedirect(url);
+      // OAuthServlet servlet = new OAuthServlet();
+      // servlet.service(request, response);
+      // ServletContext context = this.getServletContext();
+      // RequestDispatcher dispatcher = context.getRequestDispatcher("/oauth2");
+      // dispatcher.forward(request, response);
+      response.sendRedirect("/oauth2");
+    }
   }
 
   protected UserService createUserService() {

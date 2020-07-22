@@ -43,7 +43,8 @@ public class OAuthCallbackServlet extends AbstractAuthorizationCodeCallbackServl
 
   @Override
   protected AuthorizationCodeFlow initializeFlow() throws IOException {
-    return OAuthHelper.createFlow();
+    String userID = userService.getCurrentUser().getUserId();
+    return OAuthHelper.createFlow(userID);
   }
 
   @Override
