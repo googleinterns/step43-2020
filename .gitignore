@@ -3,3 +3,6 @@ target/
 apikey.txt
 output.mp3
 txt
+clientsecret.txt
+clientid.txt
+
