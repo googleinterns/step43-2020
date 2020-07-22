@@ -259,7 +259,7 @@ public class BookAgentTest {
   public void testBookResults() throws Exception {
     Output output = tester.getOutput("books.results", "testSession3", parameters, "testQuery1");
     assertEquals("Here are the results.", output.getFulfillmentText());
-    assertEquals(BooksAgent.bookListToJson(books), output.getDisplay());
+    assertEquals(BooksAgent.listToJson(books), output.getDisplay());
     assertEquals("testQuery1", output.getRedirect());
   }
 }

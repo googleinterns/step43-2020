@@ -9,6 +9,7 @@ import com.google.sps.data.Book;
 import com.google.sps.data.BookQuery;
 import com.google.sps.utils.BookUtils;
 import com.google.sps.utils.BooksMemoryUtils;
+import com.google.sps.utils.OAuthHelper;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Map;
@@ -221,7 +222,7 @@ public class BooksAgent implements Agent {
             || !checkNames.contains(parameters.get("bookshelf").getStringValue().toLowerCase())) {
           ArrayList<String> displayNames = BookUtils.getBookshelvesNames(userID);
           this.output = "Which bookshelf would you like to see?";
-          this.display = listToString(shelvesNames);
+          this.display = listToJson(shelvesNames);
           return;
         } else {
           // Create BookQuery
@@ -257,6 +258,17 @@ public class BooksAgent implements Agent {
   @Override
   public String getRedirect() {
     return this.redirect;
+  }
+
+  /**
+   * This function determines if the current user has stored book credentials
+   *
+   * @param userID ID of current user logged in
+   * @return boolean indicating if user has book credentials
+   */
+  private boolean hasBookAuthentication(String userID) throws IOException {
+    OAuthHelper helper = new OAuthHelper();
+    return (helper.loadUserCredential(userID) != null);
   }
 
   /**
@@ -303,7 +315,7 @@ public class BooksAgent implements Agent {
     ArrayList<Book> booksToDisplay =
         BooksMemoryUtils.getStoredBooksToDisplay(
             displayNum, startIndex, sessionID, queryID, datastore);
-    this.display = listToString(booksToDisplay);
+    this.display = listToJson(booksToDisplay);
   }
 
   /**
@@ -341,7 +353,7 @@ public class BooksAgent implements Agent {
     return lowerCaseList;
   }
 
-  private String listToString(ArrayList<?> list) {
+  public static String listToJson(ArrayList<?> list) {
     Gson gson = new Gson();
     return gson.toJson(list);
   }
