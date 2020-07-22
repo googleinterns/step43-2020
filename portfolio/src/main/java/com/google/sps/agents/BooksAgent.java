@@ -222,7 +222,7 @@ public class BooksAgent implements Agent {
             || !checkNames.contains(parameters.get("bookshelf").getStringValue().toLowerCase())) {
           ArrayList<String> displayNames = BookUtils.getBookshelvesNames(userID);
           this.output = "Which bookshelf would you like to see?";
-          this.display = listToString(shelvesNames);
+          this.display = listToJson(shelvesNames);
           return;
         } else {
           // Create BookQuery
@@ -315,7 +315,7 @@ public class BooksAgent implements Agent {
     ArrayList<Book> booksToDisplay =
         BooksMemoryUtils.getStoredBooksToDisplay(
             displayNum, startIndex, sessionID, queryID, datastore);
-    this.display = listToString(booksToDisplay);
+    this.display = listToJson(booksToDisplay);
   }
 
   /**
@@ -353,7 +353,7 @@ public class BooksAgent implements Agent {
     return lowerCaseList;
   }
 
-  private String listToString(ArrayList<?> list) {
+  public static String listToJson(ArrayList<?> list) {
     Gson gson = new Gson();
     return gson.toJson(list);
   }

@@ -3,8 +3,8 @@ package com.google.sps.agents;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
-import com.google.api.services.books.model.Volume;
-import com.google.api.services.books.model.Volumes;
+import com.google.api.services.books.v1.model.Volume;
+import com.google.api.services.books.v1.model.Volumes;
 import com.google.protobuf.*;
 import com.google.sps.data.Book;
 import com.google.sps.data.BookQuery;
