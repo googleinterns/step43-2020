@@ -54,6 +54,9 @@ public class BookAgentServlet extends HttpServlet {
     try {
       if (request.getParameter("number") != null) {
         parameterMap = stringToMap("{\"number\": " + request.getParameter("number") + "}");
+      } else if (request.getParameter("bookshelf") != null) {
+        parameterMap =
+            stringToMap("{\"bookshelf\": \"" + request.getParameter("bookshelf") + "\"}");
       }
       output = getOutputFromBookAgent(intent, sessionID, parameterMap, languageCode, queryID);
     } catch (Exception e) {
@@ -85,8 +88,11 @@ public class BookAgentServlet extends HttpServlet {
     byte[] byteStringToByteArray = null;
     String intentName = AgentUtils.getIntentName(intent);
     String detectedInput = "Button pressed for: " + intentName;
-    BookQuery query = BooksMemoryUtils.getStoredBookQuery(sessionID, queryID, datastore);
-    String userInput = query.getUserInput();
+    String userInput = detectedInput;
+    if (queryID != null) {
+      BookQuery query = BooksMemoryUtils.getStoredBookQuery(sessionID, queryID, datastore);
+      userInput = query.getUserInput();
+    }
     String fulfillment = "";
     try {
       BooksAgent agent =

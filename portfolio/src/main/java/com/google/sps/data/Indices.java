@@ -88,9 +88,9 @@ public class Indices {
   }
 
   private int getTotalPages(int totalResults, int displayNum) {
-    if (totalResults / displayNum == 0) {
-      return 1;
+    if (totalResults % displayNum == 0) {
+      return totalResults / displayNum;
     }
-    return totalResults / displayNum;
+    return totalResults / displayNum + 1;
   }
 }
