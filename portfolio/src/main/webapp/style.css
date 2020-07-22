@@ -567,7 +567,7 @@ p.book {
 
 [class*="book-button"]:hover, [class*="book-button"]:focus {
   background: none;
-  color: hsl(0, 2%, 22%);
+  color: #4c8bf5;
   border-color: #4c8bf5;
   box-shadow: inset 0px 0px 10px rgba(255, 255, 255, 1);
 }
@@ -615,4 +615,26 @@ p.description {
     color: gray;
     font-size: 10px;
     margin-top: 20px;
+}
+
+td.bookshelf-name {
+  width: 10px;
+  padding: 5px;
+}
+
+button.bookshelf-button {
+  color: hsl(0, 2%, 30%);
+  border-color: hsl(0, 2%, 70%);
+  border-width: 1px;
+  border-style: solid;
+  border-radius: 8px;
+  padding: 3px;
+  font-size: 14px;
+}
+
+button.bookshelf-button:hover,button.bookshelf-button:focus {
+  background: none;
+  color: #4c8bf5;
+  border-color: #4c8bf5;
+  box-shadow: inset 0px 0px 10px rgba(255, 255, 255, 1);
 }

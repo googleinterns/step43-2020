@@ -41,6 +41,52 @@ function createBookContainer(bookResults, queryID) {
 }
 
 /**
+ * This function creates a Book container containing a 
+ * <table></table> element with information about Bookshelf names from the 
+ * json bookResults parameter
+ *
+ * @param bookResults json ArrayList<Book> objects
+ * @return booksDiv element containing a book results table 
+ */
+function createBookshelfContainer(bookResults) {
+  var bookshelfList = JSON.parse(bookResults);
+  var booksDiv = document.createElement("div"); 
+  booksDiv.className = "book-div";
+  var bookTable = document.createElement("table"); 
+  bookTable.className = "book-table";
+  bookshelfList.forEach((bookName) => {
+    bookTable.appendChild(createBookShelfRow(bookName));
+  });
+  booksDiv.appendChild(bookTable);
+  return booksDiv;
+}
+
+/**
+ * This function creates a row <tr></tr> element containing information from the
+ * parameter bookshelf name to be added to the book table
+ *
+ * @param bookshelfName name of bookshelf
+ * @return bookRow element to be added to table
+ */
+function createBookShelfRow(bookshelfName) {
+  const bookRow = document.createElement('tr');
+  bookRow.className = "book-row";
+
+  const bookshelfColumn = document.createElement('td');
+  bookshelfColumn.className = "bookshelf-name";
+
+  var bookshelfButton = document.createElement("button");
+  bookshelfButton.className = "bookshelf-button";
+  bookshelfButton.insertAdjacentHTML('afterbegin', bookshelfName);
+  bookshelfButton.addEventListener("click", function () {
+    getBookshelfInformation('books.library', bookshelfName);
+  });
+  bookshelfColumn.appendChild(bookshelfButton);
+  bookRow.appendChild(bookshelfColumn);
+  return bookRow;
+}
+
+/**
  * This function creates a table footer <tr></tr> element containing current 
  * page index and previous and next buttons (if applicable)
  *
@@ -213,7 +259,7 @@ function createLinkColumn(book) {
   const linkColumn = document.createElement('td');
   linkColumn.className = "book-links";
 
-  if (book.infoLink || book.buyLink){
+  if (book.infoLink){
       linkHTML = '<p class = "book">';
       if (book.infoLink){
           redirectLogo = '<img class = "redirect-logo" alt="Redirect" src= "images/redirect.png" >';
@@ -380,9 +426,14 @@ function displayBooksFromButton(stream) {
   var outputAsJson = JSON.parse(stream);
   if (outputAsJson.intent.includes("books.more") ||
         outputAsJson.intent.includes("books.previous") ||
-        outputAsJson.intent.includes("books.results")){
+        outputAsJson.intent.includes("books.results") || 
+        outputAsJson.intent.includes("books.library")){
     clearPreviousDisplay(outputAsJson.redirect);
-    placeBooksUserInput(outputAsJson.userInput, "convo-container", outputAsJson.redirect);
+
+    if (!outputAsJson.intent.includes("books.library")) {
+      placeBooksUserInput(outputAsJson.userInput, "convo-container", outputAsJson.redirect);
+    }
+
     placeBooksFulfillment(outputAsJson.fulfillmentText, outputAsJson.redirect);
     bookContainer = createBookContainer(outputAsJson.display, outputAsJson.redirect);
     placeBookDisplay(bookContainer, "convo-container", outputAsJson.redirect);
@@ -399,7 +450,9 @@ function displayBooksFromButton(stream) {
  */
 function clearLastDiv(className) {
   lastElement = document.getElementsByClassName(className)[document.getElementsByClassName(className).length - 1];
-  lastElement.parentNode.removeChild(lastElement);
+  if (lastElement) {
+    lastElement.parentNode.removeChild(lastElement);
+  }
 }
 
 /**
@@ -410,9 +463,11 @@ function clearLastDiv(className) {
  */
 function clearLastComment(className) {
   lastElement = document.getElementsByClassName(className)[document.getElementsByClassName(className).length - 1];
-  parentContainer = lastElement.parentNode;
-  parentContainer.removeChild(lastElement);
-  parentContainer.parentNode.removeChild(parentContainer);
+  if (lastElement) {
+    parentContainer = lastElement.parentNode;
+    parentContainer.removeChild(lastElement);
+    parentContainer.parentNode.removeChild(parentContainer);
+  }
 }
 
 /**
