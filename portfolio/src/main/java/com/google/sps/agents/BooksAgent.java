@@ -303,7 +303,7 @@ public class BooksAgent implements Agent {
     ArrayList<Book> booksToDisplay =
         BooksMemoryUtils.getStoredBooksToDisplay(
             displayNum, startIndex, sessionID, queryID, datastore);
-    this.display = bookListToJson(booksToDisplay);
+    this.display = listToString(booksToDisplay);
   }
 
   /**
@@ -341,14 +341,9 @@ public class BooksAgent implements Agent {
     return lowerCaseList;
   }
 
-  private String listToString(ArrayList<String> list) {
+  private String listToString(ArrayList<?> list) {
     Gson gson = new Gson();
     return gson.toJson(list);
-  }
-
-  private String bookListToString(ArrayList<Book> books) {
-    Gson gson = new Gson();
-    return gson.toJson(books);
   }
 
   private String getMostRecentQueryID(String sessionID) {
