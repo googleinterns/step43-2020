@@ -125,20 +125,31 @@ public class BooksAgent implements Agent {
       this.startIndex = getNextStartIndex(prevStartIndex, totalResults);
 
       if (startIndex == -1) {
-        this.output = "I'm sorry, this is the last page of results.";
+        this.output = "This is the last page of results.";
         this.startIndex = prevStartIndex;
-      } else if (startIndex + displayNum <= resultsStored) {
+      } else if (startIndex + displayNum <= resultsStored
+          || startIndex + displayNum >= totalResults) {
         replaceIndices(sessionID, queryID);
         this.output = "Here's the next page of results.";
       } else {
-        // Retrieve books from stored query at startIndex
-        this.bookResults = BookUtils.getRequestedBooks(query, startIndex);
+        // Make public book search from stored query parameters at startIndex
+        if (!query.isMyLibrary()) {
+          this.bookResults = BookUtils.getRequestedBooks(query, startIndex);
+        } else {
+          // Make book search from Bookshelf
+          if (!userService.isUserLoggedIn()) {
+            this.output = "Please login first.";
+            return;
+          }
+          String userID = userService.getCurrentUser().getUserId();
+          this.bookResults = BookUtils.getBookShelfBooks(query, startIndex, userID);
+        }
         int resultsReturned = bookResults.size();
         int newResultsStored = resultsReturned + resultsStored;
         this.resultsStored = newResultsStored;
 
         if (resultsReturned == 0) {
-          this.output = "I'm sorry, this is the last page of results.";
+          this.output = "This is the last page of results.";
           this.startIndex = prevStartIndex;
         } else {
           // Store Book results and new indices
@@ -181,7 +192,11 @@ public class BooksAgent implements Agent {
       loadBookQueryInfo(sessionID, queryID);
       this.startIndex = prevStartIndex;
       setBookListDisplay();
-      this.output = "Here are the results.";
+      if (query.isMyLibrary()) {
+        this.output = "Here's your " + query.getBookshelfName() + " bookshelf.";
+      } else {
+        this.output = "Here are the results.";
+      }
       this.redirect = queryID;
     } else {
       // All other intents require users to be logged in
@@ -190,6 +205,7 @@ public class BooksAgent implements Agent {
         return;
       }
       String userID = userService.getCurrentUser().getUserId();
+
       if (intentName.equals("library")) {
         if (!hasBookAuthentication(userID)) {
           // Get valid authentication
@@ -198,12 +214,13 @@ public class BooksAgent implements Agent {
               "https://8080-fabf4299-6bc0-403a-9371-600927588310.us-west1.cloudshell.dev/oauth2";
           return;
         }
-        ArrayList<String> shelvesNames = BookUtils.getBookshelvesNames(userID, true);
+        ArrayList<String> shelvesNames = BookUtils.getBookshelvesNames(userID);
+        ArrayList<String> checkNames = allLowerCaseList(shelvesNames);
 
         // If unspecified bookshelf, or invalid bookshelf name
         if (parameters.get("bookshelf") == null
-            || !shelvesNames.contains(parameters.get("bookshelf").getStringValue().toLowerCase())) {
-          ArrayList<String> displayNames = BookUtils.getBookshelvesNames(userID, false);
+            || !checkNames.contains(parameters.get("bookshelf").getStringValue().toLowerCase())) {
+          ArrayList<String> displayNames = BookUtils.getBookshelvesNames(userID);
           this.output = "Which bookshelf would you like to see?";
           this.display = listToString(shelvesNames);
           return;
@@ -328,7 +345,24 @@ public class BooksAgent implements Agent {
     return gson.toJson(book);
   }
 
+<<<<<<< HEAD
   public static String bookListToJson(ArrayList<Book> books) {
+=======
+  private ArrayList<String> allLowerCaseList(ArrayList<String> list) {
+    ArrayList<String> lowerCaseList = new ArrayList<String>();
+    for (String word : list) {
+      lowerCaseList.add(word.toLowerCase());
+    }
+    return lowerCaseList;
+  }
+
+  private String listToString(ArrayList<String> list) {
+    Gson gson = new Gson();
+    return gson.toJson(list);
+  }
+
+  private String bookListToString(ArrayList<Book> books) {
+>>>>>>> Add handling to support MyLibrary calls for authorized users
     Gson gson = new Gson();
     return gson.toJson(books);
   }
