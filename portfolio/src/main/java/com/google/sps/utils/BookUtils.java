@@ -4,13 +4,13 @@ import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.client.extensions.appengine.http.UrlFetchTransport;
 import com.google.api.client.googleapis.json.GoogleJsonResponseException;
 import com.google.api.client.json.gson.GsonFactory;
-import com.google.api.services.books.*;
-import com.google.api.services.books.Books;
-import com.google.api.services.books.Books.Volumes.List;
-import com.google.api.services.books.model.Bookshelf;
-import com.google.api.services.books.model.Bookshelves;
-import com.google.api.services.books.model.Volume;
-import com.google.api.services.books.model.Volumes;
+import com.google.api.services.books.v1.*;
+import com.google.api.services.books.v1.Books;
+import com.google.api.services.books.v1.Books.Volumes.List;
+import com.google.api.services.books.v1.model.Bookshelf;
+import com.google.api.services.books.v1.model.Bookshelves;
+import com.google.api.services.books.v1.model.Volume;
+import com.google.api.services.books.v1.model.Volumes;
 import com.google.gson.*;
 import com.google.sps.data.Book;
 import com.google.sps.data.BookQuery;
@@ -59,8 +59,8 @@ public class BookUtils {
   public static Volumes getVolumes(BookQuery query, int startIndex) throws IOException {
     String queryString = query.getQueryString();
     Books books = getBooksContext();
-    List list = books.volumes().list(queryString);
-
+    List list = books.volumes().list();
+    list.setQ(queryString);
     if (query.getType() != null) {
       if (query.getType().equals("ebooks") || query.getType().equals("free-ebooks")) {
         list.setFilter(query.getType());
@@ -154,14 +154,12 @@ public class BookUtils {
   public static Bookshelves getBookshelves(String userID)
       throws IOException, GoogleJsonResponseException {
     OAuthHelper helper = new OAuthHelper();
-    Credential credential = helper.loadUserCredential(userID);
-    if (credential.getExpiresInSeconds() <= 60) {
-      // TODO: Refresh credential
-    }
-
+    Credential credential = helper.loadUpdatedCredential(userID);
     Books books = getBooksContext(credential);
-    Bookshelves bookshelves = books.mylibrary().bookshelves().list().execute();
-    return bookshelves;
+    Books.Mylibrary.Bookshelves.List list = books.mylibrary().bookshelves().list();
+    list.setOauthToken(credential.getAccessToken());
+    list.set$Xgafv("");
+    return list.execute();
   }
 
   /**
@@ -169,11 +167,9 @@ public class BookUtils {
    * Google Books API and throws an exception otherwise
    *
    * @param userID unique userID
-   * @param setLowerCase boolean determining whether to return a list of lowercase names (for
-   *     checking)
    * @return ArrayList<String> list of bookshelf names
    */
-  public static ArrayList<String> getBookshelvesNames(String userID, Boolean setLowerCase)
+  public static ArrayList<String> getBookshelvesNames(String userID)
       throws IOException, GoogleJsonResponseException {
     Bookshelves bookshelves = getBookshelves(userID);
 
@@ -181,11 +177,7 @@ public class BookUtils {
       ArrayList<Bookshelf> shelves = new ArrayList<Bookshelf>(bookshelves.getItems());
       ArrayList<String> names = new ArrayList<String>();
       for (Bookshelf shelf : shelves) {
-        if (setLowerCase) {
-          names.add(shelf.getTitle().toLowerCase());
-        } else {
-          names.add(shelf.getTitle());
-        }
+        names.add(shelf.getTitle());
       }
       return names;
     }
@@ -197,18 +189,17 @@ public class BookUtils {
    * the Google Books API and throws an exception otherwise
    *
    * @param userID unique userID
-   * @param query BookQuery object containing parameters for user requested query
+   * @param bookshelfName bookshelf to retrieve
    * @return Bookshelf object
    */
-  public static Bookshelf getBookshelf(BookQuery query, String userID)
+  public static Bookshelf getBookshelf(String bookshelfName, String userID)
       throws IOException, GoogleJsonResponseException {
     Bookshelves bookshelves = getBookshelves(userID);
-    String shelfName = query.getBookshelfName();
 
     if (bookshelves != null && bookshelves.getItems() != null) {
       ArrayList<Bookshelf> shelves = new ArrayList<Bookshelf>(bookshelves.getItems());
       for (Bookshelf shelf : shelves) {
-        if (shelf.getTitle().toLowerCase().equals(shelfName.toLowerCase())) {
+        if (shelf.getTitle().toLowerCase().equals(bookshelfName.toLowerCase())) {
           return shelf;
         }
       }
@@ -228,16 +219,15 @@ public class BookUtils {
   public static Volumes getBookShelfVolumes(BookQuery query, int startIndex, String userID)
       throws IOException, GoogleJsonResponseException {
     OAuthHelper helper = new OAuthHelper();
-    Credential credential = helper.loadUserCredential(userID);
-    if (credential.getExpiresInSeconds() <= 60) {
-      // TODO: Refresh credential
-    }
+    // Credential credential = helper.loadUserCredential(userID);
+    Credential credential = helper.loadUpdatedCredential(userID);
     Books books = getBooksContext(credential);
-    Bookshelf bookshelf = getBookshelf(query, userID);
+    Bookshelf bookshelf = getBookshelf(query.getBookshelfName(), userID);
     String shelfId = Integer.toString(bookshelf.getId());
-    // Volumes volumes = books.mylibrary().bookshelves().volumes().list(shelfId).execute();
     Books.Mylibrary.Bookshelves.Volumes.List list =
         books.mylibrary().bookshelves().volumes().list(shelfId);
+    list.setAccessToken(credential.getAccessToken());
+    list.set$Xgafv("");
     list.setMaxResults(Long.valueOf(40));
     list.setStartIndex(Long.valueOf(startIndex));
     return list.execute();
@@ -271,19 +261,5 @@ public class BookUtils {
       throws IOException, GoogleJsonResponseException {
     Volumes volumes = getBookShelfVolumes(query, startIndex, userID);
     return volumes.getTotalItems().intValue();
-  }
-
-  /**
-   * This function returns the userID for the specified Bookshelf object from the selfLink that
-   * follows the following format:
-   * https://www.googleapis.com/books/v1/users/USER_ID/bookshelves/BOOKSHELF_ID
-   *
-   * @param Bookshelf object
-   * @return String userID for Google Books API
-   */
-  public static String getBooksUserId(Bookshelf bookshelf) {
-    String selfLink = bookshelf.getSelfLink();
-    selfLink = selfLink.replace("https://www.googleapis.com/books/v1/", "");
-    return selfLink.split("/")[1];
   }
 }
