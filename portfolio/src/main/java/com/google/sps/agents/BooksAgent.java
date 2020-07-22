@@ -315,7 +315,7 @@ public class BooksAgent implements Agent {
     ArrayList<Book> booksToDisplay =
         BooksMemoryUtils.getStoredBooksToDisplay(
             displayNum, startIndex, sessionID, queryID, datastore);
-    this.display = bookListToJson(booksToDisplay);
+    this.display = listToString(booksToDisplay);
   }
 
   /**
@@ -345,9 +345,6 @@ public class BooksAgent implements Agent {
     return gson.toJson(book);
   }
 
-<<<<<<< HEAD
-  public static String bookListToJson(ArrayList<Book> books) {
-=======
   private ArrayList<String> allLowerCaseList(ArrayList<String> list) {
     ArrayList<String> lowerCaseList = new ArrayList<String>();
     for (String word : list) {
@@ -356,15 +353,9 @@ public class BooksAgent implements Agent {
     return lowerCaseList;
   }
 
-  private String listToString(ArrayList<String> list) {
+  private String listToString(ArrayList<?> list) {
     Gson gson = new Gson();
     return gson.toJson(list);
-  }
-
-  private String bookListToString(ArrayList<Book> books) {
->>>>>>> Add handling to support MyLibrary calls for authorized users
-    Gson gson = new Gson();
-    return gson.toJson(books);
   }
 
   private String getMostRecentQueryID(String sessionID) {

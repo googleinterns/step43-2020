@@ -88,9 +88,6 @@ public class Indices {
   }
 
   private int getTotalPages(int totalResults, int displayNum) {
-    if (totalResults % displayNum == 0) {
-      return totalResults / displayNum;
-    }
-    return totalResults / displayNum + 1;
+    return (int) Math.ceil((double) totalResults / displayNum);
   }
 }
