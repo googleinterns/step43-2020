@@ -159,7 +159,6 @@ public class BooksAgent implements Agent {
       }
       setBookListDisplay();
       this.redirect = queryID;
-      // this.output = "Here's the next page of results.";
 
     } else if (intentName.equals("previous")) {
       loadBookQueryInfo(sessionID, queryID);

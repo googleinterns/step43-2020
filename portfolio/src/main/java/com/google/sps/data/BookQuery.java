@@ -62,13 +62,6 @@ public class BookQuery implements Serializable {
   public static BookQuery createBookQuery(String userInput, Map<String, Value> parameters)
       throws IllegalArgumentException {
     return createBookQuery(userInput, parameters, false);
-    /*
-    if (userInput == null || userInput.isEmpty()) {
-      throw new IllegalArgumentException();
-    } else {
-      BookQuery bookQuery = new BookQuery(userInput, parameters);
-      return bookQuery;
-    }*/
   }
 
   /**
