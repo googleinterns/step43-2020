@@ -52,12 +52,6 @@ public class AuthServlet extends HttpServlet {
       throws IOException, ServletException {
     System.out.println("Got to auth servlet");
     if (userService.isUserLoggedIn()) {
-      // response.sendRedirect(url);
-      // OAuthServlet servlet = new OAuthServlet();
-      // servlet.service(request, response);
-      // ServletContext context = this.getServletContext();
-      // RequestDispatcher dispatcher = context.getRequestDispatcher("/oauth2");
-      // dispatcher.forward(request, response);
       response.sendRedirect("/oauth2");
     }
   }
