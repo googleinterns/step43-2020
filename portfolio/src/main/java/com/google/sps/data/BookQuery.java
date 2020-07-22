@@ -77,6 +77,22 @@ public class BookQuery implements Serializable {
   public static BookQuery createBookQuery(
       String userInput, Map<String, Value> parameters, Boolean requiresAuth)
       throws IllegalArgumentException {
+    return createBookQuery(userInput, parameters, false);
+  }
+
+  /**
+   * Creates a BookQuery object for the detected parameters from Dialogflow that will be used to
+   * retrieve appropriate Volumes from the Google Books API that match a user input, or throws an
+   * exception if the userInput is empty
+   *
+   * @param String userInput
+   * @param parameters parameter Map from Dialogflow
+   * @param requiresAuth determines whether request requires user authentication
+   * @return BookQuery object
+   */
+  public static BookQuery createBookQuery(
+      String userInput, Map<String, Value> parameters, Boolean requiresAuth)
+      throws IllegalArgumentException {
     if (userInput == null || userInput.isEmpty()) {
       throw new IllegalArgumentException();
     } else {
