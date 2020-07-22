@@ -113,6 +113,7 @@ public class Book implements Serializable {
     this.thumbnailLink = "";
     this.buyLink = "";
     this.textSnippet = "";
+    this.volumeId = "";
   }
 
   public void setOrder(int order) {
