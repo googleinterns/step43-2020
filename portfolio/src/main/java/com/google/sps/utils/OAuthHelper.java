@@ -9,10 +9,13 @@ import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
 import com.google.api.client.http.GenericUrl;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.jackson2.JacksonFactory;
-import com.google.api.services.books.BooksScopes;
+import com.google.api.services.books.v1.BooksScopes;
+import com.google.api.services.people.v1.PeopleServiceScopes;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.HashSet;
+import java.util.Set;
 import javax.servlet.ServletException;
 
 /** This class contains methods that help with OAuth tasks */
@@ -64,12 +67,15 @@ public class OAuthHelper {
    * @return AuthorizationCodeFlow
    */
   public static AuthorizationCodeFlow createFlow(String userID) throws IOException {
+    Set<String> scopes = new HashSet<String>();
+    scopes.add(BooksScopes.BOOKS);
+    scopes.add(PeopleServiceScopes.CONTACTS_READONLY);
     return new GoogleAuthorizationCodeFlow.Builder(
             new NetHttpTransport(),
             JacksonFactory.getDefaultInstance(),
             getClientID(),
             getClientSecret(),
-            BooksScopes.all())
+            scopes)
         .setAccessType("offline")
         .setApprovalPrompt("force")
         .setCredentialDataStore(

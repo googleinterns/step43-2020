@@ -11,6 +11,7 @@ import com.google.sps.data.BookQuery;
 import com.google.sps.utils.BookUtils;
 import com.google.sps.utils.BooksMemoryUtils;
 import com.google.sps.utils.OAuthHelper;
+import com.google.sps.utils.PeopleUtils;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Map;
@@ -326,6 +327,8 @@ public class BooksAgent implements Agent {
                   + shelfName
                   + " bookshelf.";
         }
+      } else if (intentName.equals("friends")) {
+        System.out.println(PeopleUtils.getFriends(userID));
       }
     }
   }

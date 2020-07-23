@@ -50,7 +50,6 @@ public class AuthServlet extends HttpServlet {
   @Override
   public void doPost(HttpServletRequest request, HttpServletResponse response)
       throws IOException, ServletException {
-    System.out.println("Got to auth servlet");
     if (userService.isUserLoggedIn()) {
       response.sendRedirect("/oauth2");
     }
