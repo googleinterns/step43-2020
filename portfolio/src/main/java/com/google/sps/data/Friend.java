@@ -82,7 +82,7 @@ public class Friend implements Serializable {
 
   public void setName(Person person) {
     List<Name> names = person.getNames();
-    if (names != null && names.size() > 0) {
+    if (names != null && !names.isEmpty()) {
       this.name = person.getNames().get(0).getDisplayName();
     } else {
       this.name = "";

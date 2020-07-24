@@ -216,6 +216,20 @@ function getBooksFromButton(intent, queryID){
 }
 
 /**
+ * Handles when user hits like button for a book by storing liked book 
+ * or deleting stored liked book. Function is triggered by like button.
+ * 
+ * @param type either 'like' or 'unlike'
+ * @param number index of book to retrieve information for
+ * @param queryID queryID for div that triggered button
+ */
+function handleBookLiked(type, number, queryID) {
+  fetch('/book-likes?type=' + type + '&orderNum=' + number + '&query-id=' + queryID, {
+      method: 'POST'
+  });
+}
+
+/**
  * Retrieves list of bookshelves to add the specified volume to
  * based on valid bookshelves for the authenticated user. Function is
  * triggered by a button to add volume to bookshelf 

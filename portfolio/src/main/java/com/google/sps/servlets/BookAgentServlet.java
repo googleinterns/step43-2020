@@ -61,7 +61,7 @@ public class BookAgentServlet extends HttpServlet {
         this.bookshelfName = request.getParameter("bookshelf");
         params.add("\"bookshelf\": \"" + bookshelfName + "\"");
       }
-      if (params.size() != 0) {
+      if (!params.isEmpty()) {
         String paramString = String.join(",", params);
         parameterMap = stringToMap("{" + paramString + "}");
       }

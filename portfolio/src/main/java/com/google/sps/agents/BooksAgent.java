@@ -11,7 +11,6 @@ import com.google.sps.data.BookQuery;
 import com.google.sps.utils.BookUtils;
 import com.google.sps.utils.BooksMemoryUtils;
 import com.google.sps.utils.OAuthHelper;
-import com.google.sps.utils.PeopleUtils;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Map;
@@ -149,7 +148,9 @@ public class BooksAgent implements Agent {
       } else if (intentName.equals("delete")) {
         handleDeleteIntent(parameters);
       } else if (intentName.equals("friends")) {
-        System.out.println(PeopleUtils.getFriends(userID));
+        // TODO: retrieve list of friends from PeopleUtils.getFriends
+        // Retrieve books their friends have liked
+        // Create display of books
       }
     }
   }
@@ -276,7 +277,7 @@ public class BooksAgent implements Agent {
         BooksMemoryUtils.getBookFromOrderNum(
             bookNumber, prevStartIndex, sessionID, queryID, datastore);
 
-    this.display = bookToJson(requestedBook);
+    setSingleBookDisplay(requestedBook);
     this.redirect = queryID;
     this.output = "Here's a " + intentName + " of " + requestedBook.getTitle() + ".";
   }
@@ -356,8 +357,7 @@ public class BooksAgent implements Agent {
 
     // Check for valid bookshelf parameter
     if (parameters.get("bookshelf") == null
-        || !lowerShelvesNames.contains(
-            parameters.get("bookshelf").getStringValue().toLowerCase())) {
+        || !checkNames.contains(parameters.get("bookshelf").getStringValue().toLowerCase())) {
       ArrayList<String> displayNames = BookUtils.getBookshelvesNames(userID);
       this.output = "Which bookshelf would you like to add " + requestedBook.getTitle() + " to?";
       this.display = listToJson(getValidAddShelves(shelvesNames, requestedBook));
@@ -369,7 +369,7 @@ public class BooksAgent implements Agent {
       BookUtils.addToBookshelf(bookshelfName, userID, volumeId);
       this.output =
           "I've added " + requestedBook.getTitle() + " to your " + bookshelfName + " bookshelf.";
-      this.display = bookToJson(requestedBook);
+      setSingleBookDisplay(requestedBook);
       this.redirect = queryID;
     } catch (GoogleJsonResponseException e) {
       this.output =
@@ -388,7 +388,6 @@ public class BooksAgent implements Agent {
    * @param parameters Map of parameters from Dialogflow
    */
   private void handleDeleteIntent(Map<String, Value> parameters) throws IOException {
-
     // Load bookshelf name from stored BookQuery
     loadBookQueryInfo(sessionID, queryID);
     String shelfName = query.getBookshelfName();
@@ -404,7 +403,7 @@ public class BooksAgent implements Agent {
       BookUtils.deleteFromBookshelf(shelfName, userID, volumeId);
       this.output =
           "I've deleted " + requestedBook.getTitle() + " from your " + shelfName + " bookshelf.";
-      this.display = bookToJson(requestedBook);
+      setSingleBookDisplay(requestedBook);
       this.redirect = queryID;
     } catch (GoogleJsonResponseException e) {
       this.output =
@@ -475,6 +474,14 @@ public class BooksAgent implements Agent {
         BooksMemoryUtils.getStoredBooksToDisplay(
             displayNum, startIndex, sessionID, queryID, datastore);
     this.display = listToJson(booksToDisplay);
+  }
+
+  /**
+   * Sets display to Book specified in parameters and assigns like status to display on interface
+   */
+  private void setSingleBookDisplay(Book book) {
+    Book bookToDisplay = BooksMemoryUtils.assignLikeStatus(book, sessionID, datastore);
+    this.display = bookToJson(bookToDisplay);
   }
 
   /**
