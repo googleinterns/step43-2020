@@ -18,8 +18,12 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class BookUtils {
+  private static Logger log = LoggerFactory.getLogger(BookUtils.class);
+
   /**
    * This function returns an ArrayList of Book objects containing information from the Google Books
    * API based on the user's request, and throws an exception otherwise
@@ -136,7 +140,7 @@ public class BookUtils {
           Book book = Book.createBook(vol);
           books.add(book);
         } catch (IOException e) {
-          System.out.println("Result with invalid title was not added to list.");
+          log.error("Result with invalid title was not added to list.");
         }
       }
       return books;

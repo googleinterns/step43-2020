@@ -245,6 +245,27 @@ function createInfoColumn(book, queryID) {
       });
       infoColumn.appendChild(previewButton);
   }
+  // TODO: if user is logged in:
+      var likeButton = document.createElement("button");
+      likeButton.className = "book-button-like-" + book.order + "-" + queryID;
+      var unlikeHeart = '\u2661';
+      var likeHeart = '\u2764\uFE0F';
+      if (book.isLiked) {
+        likeButton.textContent = likeHeart;
+      } else {
+        likeButton.textContent = unlikeHeart;
+      }
+      likeButton.addEventListener("click", function () {
+          const status = likeButton.textContent;
+          if(status == likeHeart) {
+            likeButton.textContent = unlikeHeart;
+            handleBookLiked('unlike', book.order, queryID);
+          } else {
+            likeButton.textContent = likeHeart;
+            handleBookLiked('like', book.order, queryID);
+          }
+      });
+      infoColumn.appendChild(likeButton);
   return infoColumn;
 }
 

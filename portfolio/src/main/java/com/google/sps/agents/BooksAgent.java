@@ -188,7 +188,7 @@ public class BooksAgent implements Agent {
           BooksMemoryUtils.getBookFromOrderNum(
               bookNumber, prevStartIndex, sessionID, queryID, datastore);
 
-      this.display = bookToJson(requestedBook);
+      setSingleBookDisplay(requestedBook);
       this.redirect = queryID;
       this.output = "Here's a " + intentName + " of " + requestedBook.getTitle() + ".";
 
@@ -287,7 +287,7 @@ public class BooksAgent implements Agent {
                   + " to your "
                   + bookshelfName
                   + " bookshelf.";
-          this.display = bookToJson(requestedBook);
+          setSingleBookDisplay(requestedBook);
           this.redirect = queryID;
         } catch (GoogleJsonResponseException e) {
           this.output =
@@ -317,7 +317,7 @@ public class BooksAgent implements Agent {
                   + " from your "
                   + shelfName
                   + " bookshelf.";
-          this.display = bookToJson(requestedBook);
+          setSingleBookDisplay(requestedBook);
           this.redirect = queryID;
         } catch (GoogleJsonResponseException e) {
           this.output =
@@ -328,7 +328,9 @@ public class BooksAgent implements Agent {
                   + " bookshelf.";
         }
       } else if (intentName.equals("friends")) {
-        System.out.println(PeopleUtils.getFriends(userID));
+        // TODO: retrieve list of friends from PeopleUtils.getFriends
+        // Retrieve books their friends have liked
+        // Create display of books
       }
     }
   }
@@ -407,6 +409,14 @@ public class BooksAgent implements Agent {
         BooksMemoryUtils.getStoredBooksToDisplay(
             displayNum, startIndex, sessionID, queryID, datastore);
     this.display = listToJson(booksToDisplay);
+  }
+
+  /**
+   * Sets display to Book specified in parameters and assigns like status to display on interface
+   */
+  private void setSingleBookDisplay(Book book) {
+    Book bookToDisplay = BooksMemoryUtils.assignLikeStatus(book, sessionID, datastore);
+    this.display = bookToJson(bookToDisplay);
   }
 
   /**
