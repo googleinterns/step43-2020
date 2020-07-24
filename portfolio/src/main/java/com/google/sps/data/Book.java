@@ -48,6 +48,7 @@ public class Book implements Serializable {
   private int order;
   private String volumeId;
   private Boolean ebook = false;
+  private Boolean isLiked = false;
 
   /**
    * Creates a Book object from a valid Volume object that will be used to build virtual assistant
@@ -323,6 +324,10 @@ public class Book implements Serializable {
    */
   public static boolean hasValidSearchInfo(Volume volume) {
     return volume.getSearchInfo() != null;
+  }
+
+  public void setIsLiked(Boolean bool) {
+    this.isLiked = bool;
   }
 
   public void clearDescription() {

@@ -12,8 +12,12 @@ import com.google.sps.data.Friend;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class PeopleUtils {
+  private static Logger log = LoggerFactory.getLogger(PeopleUtils.class);
+
   /**
    * This function returns a list of the user's friends, based on their connections from the Google
    * People API and throws an exception otherwise
@@ -57,7 +61,7 @@ public class PeopleUtils {
         try {
           friends.add(Friend.createFriend(person));
         } catch (IOException e) {
-          System.out.println("Person with no email was not added to the list.");
+          log.error("Person with no email was not added to the list.");
         }
       }
     }
