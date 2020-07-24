@@ -71,6 +71,21 @@ window.onresize = function() {
  
 window.onresize();
 
+// Close the liked book dropdown menu if the user presses out of the button
+window.onclick = function(event) {
+  if (!event.target.matches("[class^=book-button-dropbtn]") &&
+      !event.target.matches("[class^=book-dropbtn-logo]")) {
+    var dropdowns = document.getElementsByClassName("book-dropdown-content");
+    var i;
+    for (i = 0; i < dropdowns.length; i++) {
+      var openDropdown = dropdowns[i];
+      if (openDropdown.classList.contains('show')) {
+        openDropdown.classList.remove('show');
+      }
+    }
+  }
+}
+
 /**
 * Retrives the saved language from session storage or English as default.
 */
@@ -196,6 +211,22 @@ function isEmptyString(text) {
 function goToBookshelf(intent, bookshelfName){
   fetch('/book-agent?intent=' + intent + '&language=' + getLanguage() + '&session-id=' + sessionId + 
     '&bookshelf=' + bookshelfName, {
+      method: 'POST'
+  }).then(response => response.text()).then(stream => displayResponse(stream));
+}
+
+/**
+ * Retrieves Output object created by BookAgent for the specified friend's liked
+ * books, triggered by pressing their name in the like list. Sends stream 
+ * to generic handler and does not specify a queryID (in order to generate new
+ * query)
+ * 
+ * @param intent name of book intent
+ * @param friendName friend to retrieve likes from
+ */
+function seeFriendsLikedBooks(intent, friendName){
+  fetch('/book-agent?intent=' + intent + '&language=' + getLanguage() + '&session-id=' + sessionId + 
+    '&friend=' + friendName, {
       method: 'POST'
   }).then(response => response.text()).then(stream => displayResponse(stream));
 }

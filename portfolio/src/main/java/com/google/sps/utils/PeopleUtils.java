@@ -19,6 +19,25 @@ public class PeopleUtils {
   private static Logger log = LoggerFactory.getLogger(PeopleUtils.class);
 
   /**
+   * This function returns a boolean determining whether the user, specified by userID, contains a
+   * friend with the specified name (or email), based on their connections from the Google People
+   * API and throws an exception otherwise
+   *
+   * @param userID ID for authenticated user
+   * @param friendName friend to look for
+   * @return boolean value
+   */
+  public static Boolean hasFriend(String userID, String friendName) throws IOException {
+    for (Friend friend : getFriends(userID)) {
+      if (friendName.toLowerCase().equals(friend.getName().toLowerCase())
+          || friend.getEmails().contains(friendName)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
    * This function returns a list of the user's friends, based on their connections from the Google
    * People API and throws an exception otherwise
    *
@@ -85,13 +104,9 @@ public class PeopleUtils {
             .people()
             .connections()
             .list("people/me")
-            // .setPageSize(10)
             .setPersonFields("names,emailAddresses")
             .execute();
     List<Person> connections = response.getConnections();
-    // list.setOauthToken(credential.getAccessToken());
-    // list.set$Xgafv("");
-    // return list.execute();
     return connections;
   }
 }

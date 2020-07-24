@@ -11,6 +11,7 @@ import com.google.sps.data.BookQuery;
 import com.google.sps.utils.BookUtils;
 import com.google.sps.utils.BooksMemoryUtils;
 import com.google.sps.utils.OAuthHelper;
+import com.google.sps.utils.PeopleUtils;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Map;
@@ -124,13 +125,6 @@ public class BooksAgent implements Agent {
         return;
       }
       this.userID = userService.getCurrentUser().getUserId();
-      if (!hasBookAuthentication(userID)) {
-        // Get valid authentication
-        this.output = "Please allow me to access your Google Books account first.";
-        this.redirect =
-            "https://8080-fabf4299-6bc0-403a-9371-600927588310.us-west1.cloudshell.dev/oauth2";
-        return;
-      }
 
       // Retrieve stored or store bookshelf names for current user
       if (BooksMemoryUtils.hasBookshelvesStored(userID, datastore)) {
@@ -148,9 +142,64 @@ public class BooksAgent implements Agent {
       } else if (intentName.equals("delete")) {
         handleDeleteIntent(parameters);
       } else if (intentName.equals("friends")) {
-        // TODO: retrieve list of friends from PeopleUtils.getFriends
-        // Retrieve books their friends have liked
-        // Create display of books
+        // Store query information
+        this.query = BookQuery.createBookQuery(this.userInput, parameters, false);
+        this.startIndex = 0;
+
+        // Get bookResults of books friends like
+        this.bookResults = BooksMemoryUtils.getFriendsLikes(userID, datastore);
+        this.totalResults = bookResults.size();
+        this.resultsReturned = bookResults.size();
+
+        if (totalResults > 0) {
+          // Handle like a search request (no delete button, since not in bookshelf)
+          handleNewQuerySuccess("search");
+          this.output = "Here are the books your friends like.";
+        } else {
+          this.output = "I'm sorry. Your friends haven't liked any books.";
+        }
+      } else if (intentName.equals("mylikes")) {
+        // Store query information
+        this.query = BookQuery.createBookQuery(this.userInput, parameters, false);
+        this.startIndex = 0;
+
+        // Get bookResults of books friends like
+        this.bookResults = BooksMemoryUtils.getLikedBooksFromId(userID, "id", datastore);
+        this.totalResults = bookResults.size();
+        this.resultsReturned = bookResults.size();
+
+        if (totalResults > 0) {
+          // Handle like a search request (no delete button, since not in bookshelf)
+          handleNewQuerySuccess("search");
+          this.output = "Here are your liked books.";
+        } else {
+          this.output = "You haven't liked any books yet!";
+        }
+      } else if (intentName.contains("friendlikes")) {
+        // Store query information
+        this.query = BookQuery.createBookQuery(this.userInput, parameters, false);
+        String friendName = query.getFriendName();
+        if (friendName == null) {
+          this.output = "Which friend?";
+          return;
+        }
+        this.startIndex = 0;
+        if (!PeopleUtils.hasFriend(userID, friendName)) {
+          this.output = "I'm sorry. I don't recognize a " + friendName + " in your contact list.";
+          return;
+        }
+        // Get bookResults of books friends like
+        this.bookResults = BooksMemoryUtils.getLikesOfFriend(userID, friendName, datastore);
+        this.totalResults = bookResults.size();
+        this.resultsReturned = bookResults.size();
+
+        if (totalResults > 0) {
+          // Handle like a search request (no delete button, since not in bookshelf)
+          handleNewQuerySuccess("search");
+          this.output = "Here are " + friendName + "'s liked books.";
+        } else {
+          this.output = "I couldn't find any liked books for " + friendName + ".";
+        }
       }
     }
   }
@@ -179,8 +228,6 @@ public class BooksAgent implements Agent {
   private void handleSearchIntent(Map<String, Value> parameters) throws IOException {
     this.query = BookQuery.createBookQuery(this.userInput, parameters);
     this.startIndex = 0;
-
-    // Retrieve books from BookQuery
     this.bookResults = BookUtils.getRequestedBooks(query, startIndex);
     this.totalResults = BookUtils.getTotalVolumesFound(query, startIndex);
     this.resultsReturned = bookResults.size();
@@ -201,6 +248,7 @@ public class BooksAgent implements Agent {
   private void handleMoreIntent() throws IOException {
     // Loads query, prevStartIndex totalResults, resultsStored and increment startIndex
     loadBookQueryInfo(sessionID, queryID);
+    loadIndicesInfo(sessionID, queryID);
     this.startIndex = getNextStartIndex(prevStartIndex, totalResults);
     String ending = getFulfillmentEnding(query);
 
@@ -248,6 +296,7 @@ public class BooksAgent implements Agent {
   private void handlePreviousIntent() throws IOException {
     // Loads query, prevStartIndex totalResults, resultsStored and increment startIndex
     loadBookQueryInfo(sessionID, queryID);
+    loadIndicesInfo(sessionID, queryID);
     this.startIndex = prevStartIndex - displayNum;
     String ending = getFulfillmentEnding(query);
 
@@ -289,19 +338,25 @@ public class BooksAgent implements Agent {
   private void handleResultsIntent() throws IOException {
     // Loads query, prevStartIndex totalResults, resultsStored and increment startIndex
     loadBookQueryInfo(sessionID, queryID);
+    loadIndicesInfo(sessionID, queryID);
+    String ending = getFulfillmentEnding(query);
     if (query.isMyLibrary()) {
       this.userID = userService.getCurrentUser().getUserId();
       refreshBookshelf();
       if (resultsReturned == 0) {
-        this.output = "There are no more books in your " + query.getBookshelfName() + " bookshelf.";
+        this.output = "There are no more books in " + ending;
       } else {
         setBookListDisplay();
-        this.output = "Here's your " + query.getBookshelfName() + " bookshelf.";
+        this.output = "Here's " + ending;
       }
     } else {
       this.startIndex = prevStartIndex;
       setBookListDisplay();
-      this.output = "Here are the results.";
+      String fulfillment = "Here are ";
+      if (query.getFriendName() == null) {
+        fulfillment += "the ";
+      }
+      this.output = fulfillment + ending;
     }
     this.redirect = queryID;
   }
@@ -357,7 +412,8 @@ public class BooksAgent implements Agent {
 
     // Check for valid bookshelf parameter
     if (parameters.get("bookshelf") == null
-        || !checkNames.contains(parameters.get("bookshelf").getStringValue().toLowerCase())) {
+        || !lowerShelvesNames.contains(
+            parameters.get("bookshelf").getStringValue().toLowerCase())) {
       ArrayList<String> displayNames = BookUtils.getBookshelvesNames(userID);
       this.output = "Which bookshelf would you like to add " + requestedBook.getTitle() + " to?";
       this.display = listToJson(getValidAddShelves(shelvesNames, requestedBook));
@@ -390,6 +446,7 @@ public class BooksAgent implements Agent {
   private void handleDeleteIntent(Map<String, Value> parameters) throws IOException {
     // Load bookshelf name from stored BookQuery
     loadBookQueryInfo(sessionID, queryID);
+    loadIndicesInfo(sessionID, queryID);
     String shelfName = query.getBookshelfName();
     // Retrieve requested book
     int bookNumber = (int) parameters.get("number").getNumberValue();
@@ -436,7 +493,7 @@ public class BooksAgent implements Agent {
    *
    * @param intent detected intent for query
    */
-  private void handleNewQuerySuccess(String intent) {
+  private void handleNewQuerySuccess(String intent) throws IOException {
     this.queryID = getNextQueryID(sessionID);
     if (intent.equals("library")) {
       this.queryID += "-shelf";
@@ -451,15 +508,24 @@ public class BooksAgent implements Agent {
   }
 
   /**
-   * Loads previous BookQuery and Indices information from the BookQuery matching the request's
-   * sessionID and queryID and sets query, prevStartIndex, resultsStored, totalResults based on
-   * stored information
+   * Loads previous BookQuery information from the BookQuery matching the request's sessionID and
+   * queryID and sets query parameter based on stored information
    *
    * @param sessionID ID of current user / session
    * @param queryID ID of query requested
    */
   private void loadBookQueryInfo(String sessionID, String queryID) {
     this.query = BooksMemoryUtils.getStoredBookQuery(sessionID, queryID, datastore);
+  }
+
+  /**
+   * Loads previous Indices information from the BookQuery matching the request's sessionID and
+   * queryID and sets prevStartIndex, resultsStored, totalResults based on stored information
+   *
+   * @param sessionID ID of current user / session
+   * @param queryID ID of query requested
+   */
+  private void loadIndicesInfo(String sessionID, String queryID) {
     this.prevStartIndex =
         BooksMemoryUtils.getStoredIndices("startIndex", sessionID, queryID, datastore);
     this.resultsStored =
@@ -469,7 +535,7 @@ public class BooksAgent implements Agent {
   }
 
   /** Sets display to an ArrayList<Book> to display on user interface */
-  private void setBookListDisplay() {
+  private void setBookListDisplay() throws IOException {
     ArrayList<Book> booksToDisplay =
         BooksMemoryUtils.getStoredBooksToDisplay(
             displayNum, startIndex, sessionID, queryID, datastore);
@@ -479,8 +545,13 @@ public class BooksAgent implements Agent {
   /**
    * Sets display to Book specified in parameters and assigns like status to display on interface
    */
-  private void setSingleBookDisplay(Book book) {
-    Book bookToDisplay = BooksMemoryUtils.assignLikeStatus(book, sessionID, datastore);
+  private void setSingleBookDisplay(Book book) throws IOException {
+    ArrayList<String> likedBooks = BooksMemoryUtils.getLikedBookIds(sessionID, datastore);
+    ArrayList<Book> friendsLikes = BooksMemoryUtils.getFriendsLikes(sessionID, datastore);
+    Book bookWithLikeCount =
+        BooksMemoryUtils.assignLikeCount(book, sessionID, friendsLikes, datastore);
+    Book bookToDisplay =
+        BooksMemoryUtils.assignLikeStatus(bookWithLikeCount, sessionID, likedBooks, datastore);
     this.display = bookToJson(bookToDisplay);
   }
 
@@ -525,7 +596,7 @@ public class BooksAgent implements Agent {
     return gson.toJson(book);
   }
 
-  private ArrayList<String> allLowerCaseList(ArrayList<String> list) {
+  public static ArrayList<String> allLowerCaseList(ArrayList<String> list) {
     ArrayList<String> lowerCaseList = new ArrayList<String>();
     for (String word : list) {
       lowerCaseList.add(word.toLowerCase());
@@ -573,7 +644,9 @@ public class BooksAgent implements Agent {
   private String getFulfillmentEnding(BookQuery query) {
     String ending = "";
     if (query.isMyLibrary()) {
-      ending = " your " + query.getBookshelfName() + " bookshelf.";
+      ending = "your " + query.getBookshelfName() + " bookshelf.";
+    } else if (query.getFriendName() != null) {
+      ending = query.getFriendName() + "'s  likes.";
     } else {
       ending = "results.";
     }

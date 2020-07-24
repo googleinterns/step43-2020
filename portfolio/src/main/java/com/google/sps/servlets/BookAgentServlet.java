@@ -35,6 +35,7 @@ public class BookAgentServlet extends HttpServlet {
   private DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
   private UserService userService = UserServiceFactory.getUserService();
   private String bookshelfName = "";
+  private String friendName = "";
   /**
    * Retrieves corresponding Output object for given Book intent passed as a parameter to request.
    * If a number parameter was passed to request, then it is placed into parameterMap to be sent to
@@ -60,6 +61,10 @@ public class BookAgentServlet extends HttpServlet {
       if (request.getParameter("bookshelf") != null) {
         this.bookshelfName = request.getParameter("bookshelf");
         params.add("\"bookshelf\": \"" + bookshelfName + "\"");
+      }
+      if (request.getParameter("friend") != null) {
+        this.friendName = request.getParameter("friend");
+        params.add("\"friend\": {\"name\": \"" + friendName + "\"}");
       }
       if (!params.isEmpty()) {
         String paramString = String.join(",", params);
@@ -108,6 +113,8 @@ public class BookAgentServlet extends HttpServlet {
       } else {
         userInput = "Add to my " + bookshelfName + " bookshelf.";
       }
+    } else if (intentName.equals("friendlikes")) {
+      userInput = "Show me " + friendName + "'s liked books.";
     } else {
       BookQuery query = BooksMemoryUtils.getStoredBookQuery(sessionID, queryID, datastore);
       userInput = query.getUserInput();

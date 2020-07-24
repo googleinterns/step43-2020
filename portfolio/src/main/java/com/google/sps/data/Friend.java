@@ -110,6 +110,10 @@ public class Friend implements Serializable {
     return this.emailAddresses;
   }
 
+  public Boolean hasName() {
+    return (!this.name.isEmpty());
+  }
+
   /**
    * Checks if person object has a valid title
    *

@@ -550,6 +550,10 @@ img.redirect-logo {
   width: 10px;
 }
 
+img.book-dropbtn-logo {
+  width: 10px;
+}
+
 p.book {
   color: hsl(0, 2%, 22%);
   font-size: 14px;
@@ -563,6 +567,7 @@ p.book {
   border-radius: 8px;
   padding: 3px;
   font-size: 12px;
+  margin: 1px;
 }
 
 [class*="book-button"]:hover, [class*="book-button"]:focus {
@@ -660,4 +665,44 @@ button.bookshelf-button:hover,button.bookshelf-button:focus {
   color: #4c8bf5;
   border-color: #4c8bf5;
   box-shadow: inset 0px 0px 10px rgba(255, 255, 255, 1);
+}
+
+/* The container <div> - needed to position the dropdown content */
+.dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+/* Dropdown Content (Hidden by Default) */
+.book-dropdown-content {
+  display: none;
+  position: absolute;
+  background-color: #f1f1f1;
+  min-width: 160px;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  z-index: 1;
+}
+
+/* Links inside the dropdown */
+.book-dropdown-content a {
+  color: black;
+  padding: 10px 10px;
+  text-decoration: none;
+  display: block;
+}
+
+/* Show the dropdown menu (use JS to add this class to the .dropdown-content container when the user clicks on the dropdown button) */
+.show {display:block;}
+
+[class*="book-like-count"] {
+  background: none;
+  font-size: 12px;
+  font-style: bold;
+  color: hsl(0, 2%, 22%);
+  text-decoration: none;
+}
+
+[class*="book-like-count"]:hover, [class*="book-like-count"]:focus {
+  background: none;
+  color: #4c8bf5;
 }

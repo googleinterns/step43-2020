@@ -139,12 +139,14 @@ function isBooksDisplayIntent(intentName) {
     intentName.includes("books.more") ||
     intentName.includes("books.previous") || 
     intentName.includes("books.library") ||
-    intentName.includes("books.results"));
+    intentName.includes("books.results") ||
+    intentName.includes("books.friends"));
 }
 
 function isNewQuery(intentName) {
   return (intentName.includes("books.search") || 
-         intentName.includes("books.library"));
+         intentName.includes("books.library") ||
+         intentName.includes("books.friends"));
 }
 
 function isBookInformationIntent(intentName) {

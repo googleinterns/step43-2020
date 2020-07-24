@@ -15,6 +15,14 @@ function placeBookDisplay(bookDiv, container, queryID) {
   bookContainer.insertAdjacentHTML('beforeend', '<br>');
   container.appendChild(bookContainer)
   updateBookScroll(queryID);
+  
+  // Add event listeners for dropdown buttons once dropdown elements are placed in document
+  var likesButtons = document.querySelectorAll("[class^='book-button-dropbtn']");
+  for (const button of likesButtons) {
+    button.addEventListener("click", function() {
+      dropDownLikes(button.className.split(":")[1]);
+    });
+  }
 }
 
 /**
@@ -226,7 +234,6 @@ function createInfoColumn(book, queryID) {
       titleHTML += infoHTML;
   }
   infoColumn.insertAdjacentHTML('afterbegin', titleHTML);
-
   if (book.description){
       var descriptionButton = document.createElement("button");
       descriptionButton.className = "book-button-" + queryID;
@@ -266,7 +273,59 @@ function createInfoColumn(book, queryID) {
           }
       });
       infoColumn.appendChild(likeButton);
+    if (book.likeCount > 0) {
+      var friendsLikedButton = createFriendsDropDown(book, queryID);
+      infoColumn.appendChild(friendsLikedButton);
+    }
   return infoColumn;
+}
+
+/**
+ * This function creates a like button with dropdown list of names
+ * based on the Book's liked by list 
+ *
+ * @param book Book object
+ * @param queryID appropriate queryID for results in this element
+ * @return <div></div> element
+ */
+function createFriendsDropDown(book, queryID) {
+    var dropdownDiv = document.createElement('div');
+    dropdownDiv.className = "dropdown";
+    var namesDiv = document.createElement('div');
+    var dropDownButton = document.createElement('button');
+    dropDownButton.className = "book-button-dropbtn:" + queryID + "-" + book.volumeId;
+    dropDownButton.insertAdjacentHTML('afterbegin', book.likeCount + '<img class = "book-dropbtn-logo" alt="Friend Icon" src= "images/friend.png" >');
+    
+    namesDiv.id = "bookDropdown-" + queryID + "-" + book.volumeId;
+    namesDiv.className = "book-dropdown-content";
+
+    for (const name of book.likedBy) {
+      var personLink = document.createElement('a');
+      personLink.className = "book-like-count";
+      personLink.textContent = name;
+      personLink.addEventListener("click", function () {
+        seeFriendsLikedBooks('books.friendlikes', this.textContent);
+      });
+      namesDiv.appendChild(personLink);
+    }
+    dropdownDiv.appendChild(dropDownButton);
+    dropdownDiv.appendChild(namesDiv);
+    return dropdownDiv;
+}
+
+/* When the user clicks on the button,
+toggle between hiding and showing the dropdown content */
+function dropDownLikes(id) {
+  // Close all open dropdown menus
+  var dropdowns = document.getElementsByClassName("book-dropdown-content");
+  var i;
+  for (i = 0; i < dropdowns.length; i++) {
+    var openDropdown = dropdowns[i];
+    if (openDropdown.classList.contains('show')) {
+      openDropdown.classList.remove('show');
+    }
+  }
+  document.getElementById("bookDropdown-" + id).classList.toggle("show");
 }
 
 /**
@@ -285,23 +344,23 @@ function createLinkColumn(book, queryID) {
 
   if (book.infoLink){
     redirectLogo = '<img class = "redirect-logo" alt="Redirect" src= "images/redirect.png" >';
-    linkHTML = '<a class = "book-link"  target="_blank" href = "' + book.infoLink + '">' + redirectLogo + 'Go to Page</a><br>';
+    linkHTML = '<a class = "book-link"  target="_blank" href = "' + book.infoLink + '">' + redirectLogo + ' Go to Page</a><br>';
     paragraph.insertAdjacentHTML('afterbegin', linkHTML);
   }
-  addLogo = '<img class = "redirect-logo" alt="Redirect" src= "images/redirect.png" >';
+  addLogo = '<img class = "redirect-logo" alt="Add logo" src= "images/add.png" >';
   paragraph.insertAdjacentHTML('beforeend', addLogo);
   
   // TODO: only show up if user is logged in 
   var libraryLink = document.createElement('a');
   libraryLink.className = "add-link";
-  libraryLink.insertAdjacentHTML('afterbegin', "Add to My Library");
+  libraryLink.insertAdjacentHTML('afterbegin', " Add to My Library");
   libraryLink.addEventListener("click", function () {
     getBookshelfNamesFromButton('books.add', book.order, queryID);
   });
   paragraph.appendChild(libraryLink);
   
   if (queryID.includes("-shelf")) {
-    deleteLogo = '<img class = "redirect-logo" alt="Redirect" src= "images/redirect.png" >';
+    deleteLogo = '<img class = "redirect-logo" alt="Delete logo" src= " images/trash.png" >';
     paragraph.insertAdjacentHTML('beforeend', "<br>" + deleteLogo);
 
     var deleteLink = document.createElement('a');
