@@ -11,7 +11,6 @@ import com.google.sps.data.BookQuery;
 import com.google.sps.utils.BookUtils;
 import com.google.sps.utils.BooksMemoryUtils;
 import com.google.sps.utils.OAuthHelper;
-import com.google.sps.utils.PeopleUtils;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Map;
@@ -412,8 +411,7 @@ public class BooksAgent implements Agent {
 
     // Check for valid bookshelf parameter
     if (parameters.get("bookshelf") == null
-        || !lowerShelvesNames.contains(
-            parameters.get("bookshelf").getStringValue().toLowerCase())) {
+        || !checkNames.contains(parameters.get("bookshelf").getStringValue().toLowerCase())) {
       ArrayList<String> displayNames = BookUtils.getBookshelvesNames(userID);
       this.output = "Which bookshelf would you like to add " + requestedBook.getTitle() + " to?";
       this.display = listToJson(getValidAddShelves(shelvesNames, requestedBook));
