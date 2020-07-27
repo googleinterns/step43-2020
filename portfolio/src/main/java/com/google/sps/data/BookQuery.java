@@ -55,13 +55,15 @@ public class BookQuery implements Serializable {
    * requests that do not require user Authentication, or throws an exception if the userInput is
    * empty
    *
-   * @param String userInput
+   * @param intent detected intent from Dialogflow
+   * @param userInput string
    * @param parameters parameter Map from Dialogflow
    * @return BookQuery object
    */
-  public static BookQuery createBookQuery(String userInput, Map<String, Value> parameters)
+  public static BookQuery createBookQuery(
+      String intent, String userInput, Map<String, Value> parameters)
       throws IllegalArgumentException {
-    return createBookQuery(userInput, parameters, false);
+    return createBookQuery(intent, userInput, parameters, false);
   }
 
   /**
@@ -69,18 +71,19 @@ public class BookQuery implements Serializable {
    * retrieve appropriate Volumes from the Google Books API that match a user input, or throws an
    * exception if the userInput is empty
    *
+   * @param intent detected intent from Dialogflow
    * @param String userInput
    * @param parameters parameter Map from Dialogflow
    * @param requiresAuth determines whether request requires user authentication
    * @return BookQuery object
    */
   public static BookQuery createBookQuery(
-      String userInput, Map<String, Value> parameters, Boolean requiresAuth)
+      String intent, String userInput, Map<String, Value> parameters, Boolean requiresAuth)
       throws IllegalArgumentException {
     if (userInput == null || userInput.isEmpty()) {
       throw new IllegalArgumentException();
     } else {
-      BookQuery bookQuery = new BookQuery(userInput, parameters, requiresAuth);
+      BookQuery bookQuery = new BookQuery(intent, userInput, parameters, requiresAuth);
       return bookQuery;
     }
   }
@@ -92,10 +95,14 @@ public class BookQuery implements Serializable {
    * <p>If Dialogflow does not detect certain parameters for a user request, then BookQuery
    * properties will remain null
    *
+   * @param intent detected intent from Dialogflow
    * @param userInput detected input string
    * @param parameters parameter Map from Dialogflow
+   * @param requiresAuth boolean determining if intent requires auth
    */
-  private BookQuery(String userInput, Map<String, Value> parameters, Boolean requiresAuth) {
+  private BookQuery(
+      String intent, String userInput, Map<String, Value> parameters, Boolean requiresAuth) {
+    this.intent = intent;
     this.userInput = userInput;
     this.isMyLibrary = requiresAuth;
     setType(parameters.get("type"));
@@ -192,6 +199,10 @@ public class BookQuery implements Serializable {
       }
       this.friendName = String.join(" ", names);
     }
+  }
+
+  public String getIntent() {
+    return this.intent;
   }
 
   public String getBookshelfName() {

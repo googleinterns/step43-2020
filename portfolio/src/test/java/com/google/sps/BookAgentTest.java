@@ -9,9 +9,11 @@ import com.google.sps.data.BookQuery;
 import com.google.sps.data.Output;
 import com.google.sps.servlets.BookAgentServlet;
 import com.google.sps.servlets.TestHelper;
+import com.google.sps.utils.BooksAgentHelper;
 import java.io.IOException;
 import java.text.ParseException;
-import java.util.*;
+import java.util.ArrayList;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -48,7 +50,8 @@ public class BookAgentTest {
               + "\"categories\" : \"love\","
               + "\"language\" : \"\"}";
       BookQuery query =
-          BookQuery.createBookQuery("Books about love", BookAgentServlet.stringToMap(parameters));
+          BookQuery.createBookQuery(
+              "search", "Books about love", BookAgentServlet.stringToMap(parameters));
       tester = new TestHelper();
 
       // Pre-populate database for testSession1, testQuery1: invalid previous and valid more
@@ -123,6 +126,14 @@ public class BookAgentTest {
     }
   }
 
+  @After
+  public void deleteStoredInformation() {
+    tester.deleteFromCustomDatabase("testSession1");
+    tester.deleteFromCustomDatabase("testSession2");
+    tester.deleteFromCustomDatabase("testSession3");
+    tester.deleteFromCustomDatabase("fallbackTestingID");
+  }
+
   /**
    * Checks that if the user query is invalid (i.e. one the Google Books API does not contain a
    * single match with), then the fulfillment is appropriate and no display is made.
@@ -138,6 +149,7 @@ public class BookAgentTest {
             + "\"categories\" : \"\","
             + "\"language\" : \"\"}",
         "books.search");
+    tester.setLoggedOut();
     Output output = tester.getOutput();
     assertEquals("I couldn't find any results. Can you try again?", output.getFulfillmentText());
     assertNull(output.getDisplay());
@@ -159,6 +171,7 @@ public class BookAgentTest {
             + "\"categories\" : \"puppies\","
             + "\"language\" : \"\"}",
         "books.search");
+    tester.setLoggedOut();
     Output output = tester.getOutput();
     assertEquals("Here's what I found.", output.getFulfillmentText());
     assertNotNull(output.getDisplay());
@@ -199,7 +212,7 @@ public class BookAgentTest {
   @Test
   public void testInvalidMoreRequestCase() throws Exception {
     Output output = tester.getOutput("books.more", "testSession2", parameters, "testQuery2");
-    assertEquals("I'm sorry, this is the last page of results.", output.getFulfillmentText());
+    assertEquals("This is the last page of results.", output.getFulfillmentText());
     assertNotNull(output.getDisplay());
     assertEquals("testQuery2", output.getRedirect());
   }
@@ -239,7 +252,7 @@ public class BookAgentTest {
   public void testBookDescription() throws Exception {
     Output output = tester.getOutput("books.description", "testSession3", parameters, "testQuery1");
     assertEquals("Here's a description of Title 3.", output.getFulfillmentText());
-    assertEquals(BooksAgent.bookToJson(books.get(3)), output.getDisplay());
+    assertEquals(BooksAgentHelper.bookToJson(books.get(3)), output.getDisplay());
     assertEquals("testQuery1", output.getRedirect());
   }
 
@@ -248,7 +261,7 @@ public class BookAgentTest {
   public void testBookPreview() throws Exception {
     Output output = tester.getOutput("books.preview", "testSession3", parameters, "testQuery1");
     assertEquals("Here's a preview of Title 3.", output.getFulfillmentText());
-    assertEquals(BooksAgent.bookToJson(books.get(3)), output.getDisplay());
+    assertEquals(BooksAgentHelper.bookToJson(books.get(3)), output.getDisplay());
     assertEquals("testQuery1", output.getRedirect());
   }
 
@@ -259,7 +272,7 @@ public class BookAgentTest {
   public void testBookResults() throws Exception {
     Output output = tester.getOutput("books.results", "testSession3", parameters, "testQuery1");
     assertEquals("Here are the results.", output.getFulfillmentText());
-    assertEquals(BooksAgent.listToJson(books), output.getDisplay());
+    assertEquals(BooksAgentHelper.listToJson(books), output.getDisplay());
     assertEquals("testQuery1", output.getRedirect());
   }
 }

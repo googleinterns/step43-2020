@@ -119,6 +119,7 @@ public class Book implements Serializable {
     this.buyLink = "";
     this.textSnippet = "";
     this.volumeId = "";
+    this.likedBy = new ArrayList<String>();
   }
 
   @Override

@@ -46,7 +46,9 @@ public class BookQueryTest {
               + "\"language\" : \"French\"}";
       fullQuery =
           BookQuery.createBookQuery(
-              "show me newest books about love", BookAgentServlet.stringToMap(fullParameters));
+              "search",
+              "show me newest books about love",
+              BookAgentServlet.stringToMap(fullParameters));
 
       emptyParameters =
           "{\"number\" : 3,"
@@ -58,7 +60,7 @@ public class BookQueryTest {
               + "\"language\" : \"\"}";
       emptyQuery =
           BookQuery.createBookQuery(
-              "Show me an empty search", BookAgentServlet.stringToMap(emptyParameters));
+              "search", "Show me an empty search", BookAgentServlet.stringToMap(emptyParameters));
     } catch (IllegalArgumentException e) {
       Assert.fail("Should not have thrown any exception in set up");
     }
@@ -72,7 +74,7 @@ public class BookQueryTest {
   public void checkInvalidBookQuery()
       throws IllegalArgumentException, InvalidProtocolBufferException {
     BookQuery invalidQuery =
-        BookQuery.createBookQuery("", BookAgentServlet.stringToMap(emptyParameters));
+        BookQuery.createBookQuery("", "", BookAgentServlet.stringToMap(emptyParameters));
   }
 
   /**

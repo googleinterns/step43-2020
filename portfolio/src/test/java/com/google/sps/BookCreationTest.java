@@ -47,7 +47,7 @@ public class BookCreationTest {
             + "\"language\" : \"\"}";
     BookQuery query =
         BookQuery.createBookQuery(
-            "show me books by john green", BookAgentServlet.stringToMap(parameters));
+            "search", "show me books by john green", BookAgentServlet.stringToMap(parameters));
     ArrayList<Book> books = utils.getRequestedBooks(query, 0);
     for (Book book : books) {
       assertTrue(book.getAuthors().contains("John Green"));
@@ -69,7 +69,7 @@ public class BookCreationTest {
             + "\"language\" : \"\"}";
     BookQuery query =
         BookQuery.createBookQuery(
-            "show me books titled the last", BookAgentServlet.stringToMap(parameters));
+            "search", "show me books titled the last", BookAgentServlet.stringToMap(parameters));
     ArrayList<Book> books = utils.getRequestedBooks(query, 0);
     for (Book book : books) {
       assertTrue(book.getTitle().toLowerCase().contains("the last"));
@@ -90,7 +90,8 @@ public class BookCreationTest {
             + "\"categories\" : \"\","
             + "\"language\" : \"\"}";
     BookQuery query =
-        BookQuery.createBookQuery("show me books", BookAgentServlet.stringToMap(parameters));
+        BookQuery.createBookQuery(
+            "search", "show me books", BookAgentServlet.stringToMap(parameters));
     Volumes volumes = utils.getVolumes(query, 0);
     ArrayList<Volume> vols = new ArrayList<Volume>(volumes.getItems());
     for (Volume vol : vols) {
@@ -113,7 +114,7 @@ public class BookCreationTest {
             + "\"language\" : \"\"}";
     BookQuery query =
         BookQuery.createBookQuery(
-            "show me magazines for children", BookAgentServlet.stringToMap(parameters));
+            "search", "show me magazines for children", BookAgentServlet.stringToMap(parameters));
     Volumes volumes = utils.getVolumes(query, 0);
     ArrayList<Volume> vols = new ArrayList<Volume>(volumes.getItems());
     for (Volume vol : vols) {
@@ -135,7 +136,8 @@ public class BookCreationTest {
             + "\"categories\" : \"\","
             + "\"language\" : \"\"}";
     BookQuery query =
-        BookQuery.createBookQuery("show me ebooks", BookAgentServlet.stringToMap(parameters));
+        BookQuery.createBookQuery(
+            "search", "show me ebooks", BookAgentServlet.stringToMap(parameters));
     Volumes volumes = utils.getVolumes(query, 0);
     ArrayList<Volume> vols = new ArrayList<Volume>(volumes.getItems());
     for (Volume vol : vols) {
@@ -158,7 +160,7 @@ public class BookCreationTest {
             + "\"language\" : \"\"}";
     BookQuery query =
         BookQuery.createBookQuery(
-            "show me free ebooks about love", BookAgentServlet.stringToMap(parameters));
+            "search", "show me free ebooks about love", BookAgentServlet.stringToMap(parameters));
     Volumes volumes = utils.getVolumes(query, 0);
     ArrayList<Volume> vols = new ArrayList<Volume>(volumes.getItems());
     for (Volume vol : vols) {
@@ -181,7 +183,7 @@ public class BookCreationTest {
             + "\"language\" : \"French\"}";
     BookQuery query =
         BookQuery.createBookQuery(
-            "show me books about love", BookAgentServlet.stringToMap(parameters));
+            "search", "show me books about love", BookAgentServlet.stringToMap(parameters));
     Volumes volumes = utils.getVolumes(query, 0);
     ArrayList<Volume> vols = new ArrayList<Volume>(volumes.getItems());
     for (Volume vol : vols) {
