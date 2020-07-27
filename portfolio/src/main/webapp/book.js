@@ -126,6 +126,7 @@ function createTableFooter(queryID) {
  */
 function createColumn(type, makeColumn, queryID) {
   const column = document.createElement('td');
+  column.className = "book";
 
   if (type == "previous" && makeColumn){
     column.className = "prev-column";
@@ -252,7 +253,7 @@ function createInfoColumn(book, queryID) {
       });
       infoColumn.appendChild(previewButton);
   }
-  // TODO: if user is logged in:
+  if (isUserLoggedIn) {
       var likeButton = document.createElement("button");
       likeButton.className = "book-button-like-" + book.order + "-" + queryID;
       var unlikeHeart = '\u2661';
@@ -273,9 +274,10 @@ function createInfoColumn(book, queryID) {
           }
       });
       infoColumn.appendChild(likeButton);
-    if (book.likeCount > 0) {
-      var friendsLikedButton = createFriendsDropDown(book, queryID);
-      infoColumn.appendChild(friendsLikedButton);
+      if (book.likeCount > 0) {
+        var friendsLikedButton = createFriendsDropDown(book, queryID);
+        infoColumn.appendChild(friendsLikedButton);
+      }
     }
   return infoColumn;
 }
@@ -347,32 +349,31 @@ function createLinkColumn(book, queryID) {
     linkHTML = '<a class = "book-link"  target="_blank" href = "' + book.infoLink + '">' + redirectLogo + ' Go to Page</a><br>';
     paragraph.insertAdjacentHTML('afterbegin', linkHTML);
   }
-  addLogo = '<img class = "redirect-logo" alt="Add logo" src= "images/add.png" >';
-  paragraph.insertAdjacentHTML('beforeend', addLogo);
-  
-  // TODO: only show up if user is logged in 
-  var libraryLink = document.createElement('a');
-  libraryLink.className = "add-link";
-  libraryLink.insertAdjacentHTML('afterbegin', " Add to My Library");
-  libraryLink.addEventListener("click", function () {
-    getBookshelfNamesFromButton('books.add', book.order, queryID);
-  });
-  paragraph.appendChild(libraryLink);
-  
-  if (queryID.includes("-shelf")) {
-    deleteLogo = '<img class = "redirect-logo" alt="Delete logo" src= " images/trash.png" >';
-    paragraph.insertAdjacentHTML('beforeend', "<br>" + deleteLogo);
-
-    var deleteLink = document.createElement('a');
-    deleteLink.className = "delete-link";
-    deleteLink.insertAdjacentHTML('afterbegin', "Remove from shelf");
-    deleteLink.addEventListener("click", function () {
-      editBookshelf('books.delete', "", book.order, queryID);
+  if (isUserLoggedIn) {
+    addLogo = '<img class = "redirect-logo" alt="Add logo" src= "images/add.png" >';
+    paragraph.insertAdjacentHTML('beforeend', addLogo);
+    var libraryLink = document.createElement('a');
+    libraryLink.className = "add-link";
+    libraryLink.insertAdjacentHTML('afterbegin', " Add to My Library");
+    libraryLink.addEventListener("click", function () {
+      getBookshelfNamesFromButton('books.add', book.order, queryID);
     });
-    paragraph.appendChild(deleteLink);
+    paragraph.appendChild(libraryLink);
+  
+    if (queryID.includes("-shelf")) {
+      deleteLogo = '<img class = "redirect-logo" alt="Delete logo" src= "images/trash.png" >';
+      paragraph.insertAdjacentHTML('beforeend', "<br>" + deleteLogo);
+
+      var deleteLink = document.createElement('a');
+      deleteLink.className = "delete-link";
+      deleteLink.insertAdjacentHTML('afterbegin', " Remove from shelf");
+      deleteLink.addEventListener("click", function () {
+        editBookshelf('books.delete', "", book.order, queryID);
+      });
+      paragraph.appendChild(deleteLink);
+    }
   }
   
-
   linkColumn.appendChild(paragraph);
   return linkColumn;
 }
@@ -437,7 +438,7 @@ function createBookInfoContainer(bookResult, intent, queryID, bookshelfName){
   infoTable.appendChild(createBookRow(book, queryID));
   const footerRow = createInfoFooter(queryID);
   if (bookshelfName) {
-    footerRow.insertAdjacentHTML("beforeend", "<td></td>");
+    footerRow.insertAdjacentHTML("beforeend", '<td class = "book"></td>');
     const bookshelfCol = document.createElement('td');
     bookshelfCol.className = ("more-column");
 
@@ -469,6 +470,7 @@ function createInfoRow(book, intent){
   infoRow = document.createElement('tr');
   infoCol = document.createElement('td');
   infoCol.colSpan = "3";
+  infoCol.className = "book";
   infoRow.className = "book-row";
 
   if (intent.includes("books.description")) {
@@ -494,6 +496,7 @@ function createInfoFooter(queryID){
   const footerRow = document.createElement('tr');
   footerRow.className = "book-row";
   const footerCol = document.createElement('td');
+  footerCol.className = ("prev-column");
   
   var backButton = document.createElement("button");
   backButton.className = "book-button-" + queryID;

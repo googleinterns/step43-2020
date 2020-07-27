@@ -483,6 +483,13 @@ li {
     margin-bottom: 10px;
 }
 
+.time-centered {
+    text-align: center;
+    color: gray;
+    font-size: 10px;
+    margin-top: 20px;
+}
+
 .keyword-screen, .conversation-screen {
     display: inline-block;
     width: 50%;
@@ -504,6 +511,7 @@ li {
     overflow: hidden;
 }
 
+/* Start book style here */
 .book-table {
   background-color: rgba(255, 255, 255, 50%);
   color: rgb(58, 56, 56);
@@ -519,28 +527,65 @@ li {
   color: rgb(58, 56, 56);
 }
 
+/* All book td */
+td.book {
+  border: 0px;
+  width: 10px;
+  padding: 5px;
+}
+
 td.book-thumbnail {
+  border: 0px;
   width: 10px;
   padding: 5px;
 }
 
 td.book-about {
+  border: 0px;
   padding: 10px;
   width:1%;
   white-space:nowrap;
 }
 
 td.book-info {
+  border: 0px;
   padding: 10px;
   text-align: left;
 }
 
 td.book-links {
+  border: 0px;
   padding: 10px;
   width:1%;
   white-space:nowrap;
   text-align: left;
 }
+
+td.prev-column {
+  border: 0px;
+  text-align: left;
+  padding-left: 10px;
+}
+
+td.more-column {
+  border: 0px;
+  text-align: right;
+  padding-right: 10px;
+}
+
+td.page-count {
+  border: 0px;
+  text-align: center;
+  padding: 5px;
+}
+
+td.bookshelf-name {
+  border: 0px;
+  width: 10px;
+  padding: 5px;
+}
+
+/* All book images */
 
 img.thumbnail {
   max-height: 100px;
@@ -554,11 +599,7 @@ img.book-dropbtn-logo {
   width: 10px;
 }
 
-p.book {
-  color: hsl(0, 2%, 22%);
-  font-size: 14px;
-}
-
+/* All book buttons */
 [class*="book-button"] {
   color: hsl(0, 2%, 30%);
   border-color: hsl(0, 2%, 70%);
@@ -568,6 +609,7 @@ p.book {
   padding: 3px;
   font-size: 12px;
   margin: 1px;
+  white-space: nowrap;
 }
 
 [class*="book-button"]:hover, [class*="book-button"]:focus {
@@ -575,6 +617,30 @@ p.book {
   color: #4c8bf5;
   border-color: #4c8bf5;
   box-shadow: inset 0px 0px 10px rgba(255, 255, 255, 1);
+}
+
+button.bookshelf-button {
+  background-color: white;
+  color: hsl(0, 2%, 40%);
+  border-color: hsla(0, 2%, 70%, 0);
+  border-width: 1px;
+  border-style: solid;
+  border-radius: 8px;
+  padding: 3px;
+  font-size: 14px;
+}
+
+button.bookshelf-button:hover,button.bookshelf-button:focus {
+  background: none;
+  color: #4c8bf5;
+  border-color: #4c8af500;
+  box-shadow: inset 0px 0px 10px rgba(255, 255, 255, 1);
+}
+
+/* Book paragraph and links */
+p.book {
+  color: hsl(0, 2%, 22%);
+  font-size: 14px;
 }
 
 a.book-link {
@@ -610,21 +676,6 @@ a.delete-link:hover,a.delete-link:focus {
   color: #de5246;
 }
 
-td.prev-column {
-  text-align: left;
-  padding-left: 10px;
-}
-
-td.more-column {
-  text-align: right;
-  padding-right: 10px;
-}
-
-td.page-count {
-  text-align: center;
-  padding: 5px;
-}
-
 p.description {
   color: hsl(0, 2%, 22%);
   font-size: 14px;
@@ -636,35 +687,7 @@ p.description {
   width: 600px;
   height: 400px;
   text-align: center;
-}
-
-.time-centered {
-    text-align: center;
-    color: gray;
-    font-size: 10px;
-    margin-top: 20px;
-}
-
-td.bookshelf-name {
-  width: 10px;
-  padding: 5px;
-}
-
-button.bookshelf-button {
-  color: hsl(0, 2%, 30%);
-  border-color: hsl(0, 2%, 70%);
-  border-width: 1px;
-  border-style: solid;
-  border-radius: 8px;
-  padding: 3px;
-  font-size: 14px;
-}
-
-button.bookshelf-button:hover,button.bookshelf-button:focus {
-  background: none;
-  color: #4c8bf5;
-  border-color: #4c8bf5;
-  box-shadow: inset 0px 0px 10px rgba(255, 255, 255, 1);
+  margin: auto;
 }
 
 /* The container <div> - needed to position the dropdown content */

@@ -31,6 +31,7 @@ var unsentLastCommand;
 var sessionId = "";
 var queryNumber = 0;
 window.onbeforeunload = deleteSessionInformation;
+var isUserLoggedIn = false;
 
 /**
 * Function triggered with each character typed in the text input container that handles 
@@ -151,6 +152,10 @@ function authSetup() {
     var authContainer = document.getElementsByClassName("auth-link")[0];
     authContainer.innerHTML = "<a class=\"link\" href=\"" + displayText.authText + "\">" + displayText.logButton + "</a>";
     updateName(displayText.displayName);
+    //Checks if user is logged in or not
+    if (displayText.logButton == "Logout") {
+        isUserLoggedIn = true;
+    }
     getSessionID();
     // Clears any stored information in Datastore for this session upon loading
     deleteSessionInformation();

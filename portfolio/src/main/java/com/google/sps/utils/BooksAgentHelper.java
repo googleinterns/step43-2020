@@ -84,6 +84,10 @@ public class BooksAgentHelper {
       return;
     }
     this.userID = userService.getCurrentUser().getUserId();
+    if (!hasBookAuthentication(userID)) {
+      this.output = "Please allow me to access your Google Books and Contact information first.";
+      return;
+    }
     setBookshelfInfoForUser();
 
     if (intentName.equals("library")) {
@@ -125,6 +129,33 @@ public class BooksAgentHelper {
     }
     this.lowerShelvesNames = allLowerCaseList(shelvesNames);
   }
+
+  /**
+   * Handles new query Book intents that require retrieving new lists of books, based on user input.
+   * Includes: search, library, friends, mylikes, friendlikes intents. Handles these intents by:
+   * creating BookQuery, retrieving appropriate Books, and handling a new query storage and display
+   * if the request is successful.
+   *
+   * @param intentName name of detected intent
+   * @param parameters Map of parameters from Dialogflow
+   */
+  public void handleNewQueryIntents(String intentName, Map<String, Value> parameters)
+      throws IOException {
+    createNewQuery(intentName, parameters);
+    this.startIndex = 0;
+    if (intentName.equals("friendlikes")) {
+      if (!isValidFriend()) {
+        return;
+      }
+    }
+    if (resultsReturned > 0) {
+      handleNewQuerySuccess(intentName);
+      this.output = createSuccessfulQueryOutput(intentName);
+    } else {
+      this.output = createFailedQueryOutput(intentName);
+    }
+  }
+
   /**
    * Creates new query request by: creating BookQuery, retrieving appropriate Books for the intent
    * and setting the totalResults and resultsReturned parameters
@@ -158,32 +189,6 @@ public class BooksAgentHelper {
       this.totalResults = bookResults.size();
     }
     this.resultsReturned = bookResults.size();
-  }
-
-  /**
-   * Handles new query Book intents that require retrieving new lists of books, based on user input.
-   * Includes: search, library, friends, mylikes, friendlikes intents. Handles these intents by:
-   * creating BookQuery, retrieving appropriate Books, and handling a new query storage and display
-   * if the request is successful.
-   *
-   * @param intentName name of detected intent
-   * @param parameters Map of parameters from Dialogflow
-   */
-  public void handleNewQueryIntents(String intentName, Map<String, Value> parameters)
-      throws IOException {
-    createNewQuery(intentName, parameters);
-    this.startIndex = 0;
-    if (intentName.equals("friendlikes")) {
-      if (!isValidFriend()) {
-        return;
-      }
-    }
-    if (resultsReturned > 0) {
-      handleNewQuerySuccess(intentName);
-      this.output = createSuccessfulQueryOutput(intentName);
-    } else {
-      this.output = createFailedQueryOutput(intentName);
-    }
   }
 
   /**
