@@ -25,10 +25,12 @@ public class PeopleUtils {
    *
    * @param userID ID for authenticated user
    * @param friendName friend to look for
+   * @param oauthHelper OAuthHelper instance used to access OAuth methods
    * @return boolean value
    */
-  public static Boolean hasFriend(String userID, String friendName) throws IOException {
-    for (Friend friend : getFriends(userID)) {
+  public Boolean hasFriend(String userID, String friendName, OAuthHelper oauthHelper)
+      throws IOException {
+    for (Friend friend : getFriends(userID, oauthHelper)) {
       if (friendName.toLowerCase().equals(friend.getName().toLowerCase())
           || friend.getEmails().contains(friendName)) {
         return true;
@@ -42,10 +44,11 @@ public class PeopleUtils {
    * People API and throws an exception otherwise
    *
    * @param userID ID for authenticated user
+   * @param helper OAuthHelper instance used to access OAuth methods
    * @return ArrayList<Friend> list of friends
    */
-  public static ArrayList<Friend> getFriends(String userID) throws IOException {
-    return getFriendList(getContactsFromAPI(userID));
+  public ArrayList<Friend> getFriends(String userID, OAuthHelper helper) throws IOException {
+    return getFriendList(getContactsFromAPI(userID, helper));
   }
 
   /**
@@ -55,7 +58,7 @@ public class PeopleUtils {
    * @param credential Valid credential for authenticated user
    * @return PeopleService object
    */
-  private static PeopleService getPeopleService(Credential credential) throws IOException {
+  private PeopleService getPeopleService(Credential credential) throws IOException {
     GsonFactory gsonFactory = new GsonFactory();
     UrlFetchTransport transport = new UrlFetchTransport();
     PeopleService service =
@@ -73,7 +76,7 @@ public class PeopleUtils {
    * @param connections list of Person objects from Google Books API
    * @return ArrayList<Friend>
    */
-  private static ArrayList<Friend> getFriendList(List<Person> connections) {
+  private ArrayList<Friend> getFriendList(List<Person> connections) {
     ArrayList<Friend> friends = new ArrayList<Friend>();
     if (connections != null && connections.size() > 0) {
       for (Person person : connections) {
@@ -92,11 +95,11 @@ public class PeopleUtils {
    * that match the authenticated user's bookshelves and throws an exception otherwise
    *
    * @param userID unique userID
+   * @param helper OAuthHelper instance used to access OAuth methods
    * @return Bookshelves object of results
    */
-  public static List<Person> getContactsFromAPI(String userID)
+  public List<Person> getContactsFromAPI(String userID, OAuthHelper helper)
       throws IOException, GoogleJsonResponseException {
-    OAuthHelper helper = new OAuthHelper();
     Credential credential = helper.loadUpdatedCredential(userID);
     PeopleService service = getPeopleService(credential);
     ListConnectionsResponse response =

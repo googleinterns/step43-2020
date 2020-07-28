@@ -27,8 +27,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import org.apache.commons.lang3.SerializationUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class BooksMemoryUtils {
+  private static Logger log = LoggerFactory.getLogger(BooksMemoryUtils.class);
   /**
    * This function stores each Book object an ArrayList of Book objects in DataStore as a Book
    * Entity with the corresponding properties
@@ -52,6 +55,7 @@ public class BooksMemoryUtils {
 
       Book currentBook = books.get(i);
       currentBook.setOrder(i + startIndex);
+      log.info(currentBook.getTitle() + Integer.toString(currentBook.getOrder()));
 
       byte[] bookData = SerializationUtils.serialize(currentBook);
       Blob bookBlob = new Blob(bookData);
@@ -187,6 +191,9 @@ public class BooksMemoryUtils {
    * @param sessionID unique id of session to retrieve from
    * @param queryID unique id (within sessionID) of query to store
    * @param datastore DatastoreService instance used to access Book info from database
+   * @param userService UserService instance to access userID and other user info.
+   * @param oauthHelper OAuthHelper instance used to access OAuth methods
+   * @param peopleUtils PeopleUtils instance used to access Google People API
    * @return ArrayList<Book>
    */
   public static ArrayList<Book> getStoredBooksToDisplay(
@@ -195,7 +202,9 @@ public class BooksMemoryUtils {
       String sessionID,
       String queryID,
       DatastoreService datastore,
-      UserService userService)
+      UserService userService,
+      OAuthHelper oauthHelper,
+      PeopleUtils peopleUtils)
       throws IOException {
     Filter idFilter = createSessionQueryFilter(sessionID, queryID);
     Query query = new Query("Book").setFilter(idFilter).addSort("order", SortDirection.ASCENDING);
@@ -204,7 +213,7 @@ public class BooksMemoryUtils {
     ArrayList<Book> friendsLikes = new ArrayList<Book>();
     if (userService.isUserLoggedIn()) {
       likedBooks = getLikedBooksFromId(sessionID, "id", datastore);
-      friendsLikes = getFriendsLikes(sessionID, datastore);
+      friendsLikes = getFriendsLikes(sessionID, datastore, oauthHelper, peopleUtils);
     }
 
     ArrayList<Book> books = new ArrayList<>();
@@ -322,7 +331,6 @@ public class BooksMemoryUtils {
     Gson gson = new Gson();
     Type listType = new TypeToken<ArrayList<String>>() {}.getType();
     ArrayList<String> names = gson.fromJson(listJson, listType);
-
     return names;
   }
 
@@ -463,11 +471,9 @@ public class BooksMemoryUtils {
    * This function stores a Book object and userEmail in a LikedBook entity in Datastore
    *
    * @param orderNum index of book to like
-   * @param startIndex index to start order at
-   * @param sessionID unique id of session to store
    * @param queryID unique id (within sessionID) of query to store
-   * @param datastore DatastoreService instance used to access Book info from database
    * @param userService UserService instance to access userID and other user info.
+   * @param datastore DatastoreService instance used to access Book info from database
    */
   public static void likeBook(
       int orderNum, String queryID, UserService userService, DatastoreService datastore) {
@@ -487,14 +493,33 @@ public class BooksMemoryUtils {
   }
 
   /**
+   * This function stores a Book object and userEmail in a LikedBook entity in Datastore
+   *
+   * @param bookToLike book to like
+   * @param userID unique id of user to store book for
+   * @param userEmail unique email of user to store liked book for
+   * @param datastore DatastoreService instance used to access Book info from database
+   */
+  public static void likeBook(
+      Book bookToLike, String userID, String userEmail, DatastoreService datastore) {
+    byte[] bookData = SerializationUtils.serialize(bookToLike);
+    Blob bookBlob = new Blob(bookData);
+
+    Entity likedBookEntity = new Entity("LikedBook");
+    likedBookEntity.setProperty("id", userID);
+    likedBookEntity.setProperty("userEmail", userEmail);
+    likedBookEntity.setProperty("volumeId", bookToLike.getVolumeId());
+    likedBookEntity.setProperty("book", bookBlob);
+    datastore.put(likedBookEntity);
+  }
+
+  /**
    * This function deletes a stored LikedBook Entity for the book and user specified in Datastore
    *
    * @param orderNum index of book to like
-   * @param startIndex index to start order at
-   * @param sessionID unique id of session to store
    * @param queryID unique id (within sessionID) of query to store
-   * @param datastore DatastoreService instance used to access Book info from database
    * @param userService UserService instance to access userID and other user info.
+   * @param datastore DatastoreService instance used to access Book info from database
    */
   public static void unlikeBook(
       int orderNum, String queryID, UserService userService, DatastoreService datastore) {
@@ -519,17 +544,44 @@ public class BooksMemoryUtils {
   }
 
   /**
+   * This function deletes a stored LikedBook Entity for the book and user specified in Datastore
+   *
+   * @param bookToUnlike book to unlike
+   * @param userID unique id of user to delete book for
+   * @param userEmail unique email of user to delete liked book for
+   * @param datastore DatastoreService instance used to access Book info from database
+   */
+  public static void unlikeBook(
+      Book bookToUnlike, String userID, String userEmail, DatastoreService datastore) {
+    String volumeID = bookToUnlike.getVolumeId();
+    Filter filter =
+        new CompositeFilter(
+            CompositeFilterOperator.AND,
+            Arrays.asList(
+                new FilterPredicate("id", FilterOperator.EQUAL, userID),
+                new FilterPredicate("volumeId", FilterOperator.EQUAL, volumeID)));
+    Query query = new Query("LikedBook").setFilter(filter);
+    PreparedQuery results = datastore.prepare(query);
+    for (Entity entity : results.asIterable()) {
+      datastore.delete(entity.getKey());
+    }
+  }
+
+  /**
    * This function returns a list of Book objects from the stored LikedBook Entities in Datastore
    * for all friends of the given userID
    *
    * @param userID unique id of user
    * @param datastore DatastoreService instance used to access Book info from database
+   * @param oauthHelper OAuthHelper instance used to access OAuth methods
+   * @param peopleUtils PeopleUtils instance used to access Google People API
    * @return ArrayList<Book> books liked by friends
    */
-  public static ArrayList<Book> getFriendsLikes(String userID, DatastoreService datastore)
+  public static ArrayList<Book> getFriendsLikes(
+      String userID, DatastoreService datastore, OAuthHelper oauthHelper, PeopleUtils peopleUtils)
       throws IOException {
     ArrayList<Book> friendsLikes = new ArrayList<Book>();
-    for (Friend friend : PeopleUtils.getFriends(userID)) {
+    for (Friend friend : peopleUtils.getFriends(userID, oauthHelper)) {
       for (String email : friend.getEmails()) {
         String name = friend.getName();
         if (!friend.hasName()) {
@@ -558,11 +610,18 @@ public class BooksMemoryUtils {
    * @param userID unique id of user
    * @param friendName name of friend to retrive liked books of
    * @param datastore DatastoreService instance used to access Book info from database
+   * @param oauthHelper OAuthHelper instance used to access OAuth methods
+   * @param peopleUtils PeopleUtils instance used to access Google People API
    * @return ArrayList<Book> books liked by friends
    */
   public static ArrayList<Book> getLikesOfFriend(
-      String userID, String friendName, DatastoreService datastore) throws IOException {
-    ArrayList<Book> friendsLikes = getFriendsLikes(userID, datastore);
+      String userID,
+      String friendName,
+      DatastoreService datastore,
+      OAuthHelper oauthHelper,
+      PeopleUtils peopleUtils)
+      throws IOException {
+    ArrayList<Book> friendsLikes = getFriendsLikes(userID, datastore, oauthHelper, peopleUtils);
     ArrayList<Book> individualFriendLikes = new ArrayList<Book>();
     for (Book likedBook : friendsLikes) {
       ArrayList<String> likedByLowerCase =

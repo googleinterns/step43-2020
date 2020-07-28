@@ -246,7 +246,8 @@ public class MapsSearchTest {
     // Assertions
     assertEquals(
         "Here is the map for: 500 W 2nd St, Austin, TX 78701, USA", output.getFulfillmentText());
-    assertEquals("{\"limit\":-1,\"lng\":-97.7495642,\"lat\":30.2660754}", output.getDisplay());
+    assertEquals(
+        "{\"limit\":-1,\"lng\":-97.74955949999999,\"lat\":30.2660766}", output.getDisplay());
   }
 
   @Test

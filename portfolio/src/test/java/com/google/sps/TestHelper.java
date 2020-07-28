@@ -142,29 +142,6 @@ public class TestHelper {
   }
 
   /**
-   * Gets the output object created by agent fulfillment after at the end of back-end process.
-   *
-   * @param intent intent String passed as parameter to Servlet
-   * @param sessionID unique ID for current session
-   * @param parameterMap String containing parameters needed, if any, by BookAgent
-   * @param queryID unique ID (within sessionID) for current query
-   * @return Output object identical to that which is passed back to javascript.
-   */
-  public Output getOutput(String intent, String sessionID, String parameterMap, String queryID)
-      throws InvalidProtocolBufferException {
-    BookAgentServlet bookServlet = new BookAgentServlet();
-    Output output =
-        bookServlet.getOutputFromBookAgent(
-            intent,
-            sessionID,
-            BookAgentServlet.stringToMap(parameterMap),
-            "en-US",
-            queryID,
-            customDatastore);
-    return output;
-  }
-
-  /**
    * Sets the input text to mock http request.
    *
    * @param inputText Text input of user's intent sent to Dialogflow.
@@ -259,61 +236,6 @@ public class TestHelper {
    */
   public void setCustomDatabase(String listName, ArrayList<String> items, long startTime) {
     MemoryUtils.makeListEntity(customDatastore, "1", items, listName, startTime);
-  }
-
-  /**
-   * Populates customizes datastore with desired BookQuery object.
-   *
-   * @param query BookQuery object to store
-   * @param sessionID unique id of session to store
-   * @param queryID unique id (within sessionID) of query to store
-   */
-  public void setCustomDatabase(BookQuery query, String sessionID, String queryID) {
-    BooksMemoryUtils.storeBookQuery(query, sessionID, queryID, customDatastore);
-  }
-
-  /**
-   * Populates customizes datastore with desired Indices parameters, used to construct an indices
-   * object.
-   *
-   * @param startIndex index to start retrieving Volume objects from
-   * @param resultsStored number of results stored
-   * @param totalResults total matches in Google Book API
-   * @param displayNum number of results displayed request
-   * @param sessionID unique id of session to store
-   * @param queryID unique id (within sessionID) of query to store
-   */
-  public void setCustomDatabase(
-      int startIndex,
-      int totalResults,
-      int resultsStored,
-      int displayNum,
-      String sessionID,
-      String queryID) {
-    BooksMemoryUtils.storeIndices(
-        startIndex, totalResults, resultsStored, displayNum, sessionID, queryID, customDatastore);
-  }
-
-  /**
-   * Populates customizes datastore with desired Books, starting at startIndex.
-   *
-   * @param books ArrayList of Book objects to store
-   * @param startIndex index to start order at
-   * @param sessionID unique id of session to store
-   * @param queryID unique id (within sessionID) of query to store
-   */
-  public void setCustomDatabase(
-      ArrayList<Book> books, int startIndex, String sessionID, String queryID) {
-    BooksMemoryUtils.storeBooks(books, startIndex, sessionID, queryID, customDatastore);
-  }
-
-  /**
-   * Clears all stored book information for sessionID from custom datastore.
-   *
-   * @param sessionID unique id of session to delete stored information from
-   */
-  public void deleteFromCustomDatabase(String sessionID) {
-    BooksMemoryUtils.deleteAllStoredBookInformation(sessionID, customDatastore);
   }
 
   /**

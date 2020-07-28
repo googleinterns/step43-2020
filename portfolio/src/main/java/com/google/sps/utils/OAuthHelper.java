@@ -88,6 +88,16 @@ public class OAuthHelper {
         .build();
   }
 
+  /**
+   * This function determines if the current user has stored book credentials
+   *
+   * @param userID ID of current user logged in
+   * @return boolean indicating if user has book credentials
+   */
+  public boolean hasBookAuthentication(String userID) throws IOException {
+    return (loadUserCredential(userID) != null);
+  }
+
   public static String getClientID() throws IOException {
     return new String(
         Files.readAllBytes(

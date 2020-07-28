@@ -11,6 +11,8 @@ import com.google.sps.data.BookQuery;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * BooksAgentHelper handles user's requests for books from Google Books API. It determines
@@ -18,6 +20,7 @@ import java.util.Map;
  * detected Book intent.
  */
 public class BooksAgentHelper {
+  private static Logger log = LoggerFactory.getLogger(BooksAgentHelper.class);
   private final String intentName;
   private final String userInput;
   private String output;
@@ -41,6 +44,9 @@ public class BooksAgentHelper {
   private ArrayList<String> shelvesNames;
   private ArrayList<String> lowerShelvesNames;
   private String friendName;
+  private OAuthHelper oauthHelper;
+  private BookUtils bookUtils;
+  private PeopleUtils peopleUtils;
 
   /**
    * BooksAgentHelper constructor
@@ -51,10 +57,13 @@ public class BooksAgentHelper {
    * @param parameters Map containing the detected entities in the user's intent.
    * @param sessionID String containing the unique sessionID for user's session
    * @param userService UserService instance to access userID and other user info.
-   * @param datastore DatastoreService instance used to access book info grom database.
+   * @param datastore DatastoreService instance used to access book info from database.
    * @param queryID String containing the unique ID for the BookQuery the user is requesting, If
    *     request comes from Book Display interface, then queryID is retrieved from Book Display
    *     Otherwise, queryID is set to the most recent query that the user (sessionID) made.
+   * @param oauthHelper OAuthHelper instance used to access OAuth methods
+   * @param bookUtils BookUtils instance used to access Google Books API
+   * @param peopleUtils PeopleUtils instance used to access Google People API
    */
   public BooksAgentHelper(
       String intentName,
@@ -63,7 +72,10 @@ public class BooksAgentHelper {
       String sessionID,
       UserService userService,
       DatastoreService datastore,
-      String queryID)
+      String queryID,
+      OAuthHelper oauthHelper,
+      BookUtils bookUtils,
+      PeopleUtils peopleUtils)
       throws IOException, IllegalArgumentException {
     this.displayNum = 5;
     this.intentName = intentName;
@@ -75,6 +87,9 @@ public class BooksAgentHelper {
     if (queryID == null) {
       this.queryID = getMostRecentQueryID(sessionID);
     }
+    this.oauthHelper = oauthHelper;
+    this.bookUtils = bookUtils;
+    this.peopleUtils = peopleUtils;
   }
 
   public void handleAuthorizationIntents(Map<String, Value> parameters)
@@ -84,12 +99,11 @@ public class BooksAgentHelper {
       return;
     }
     this.userID = userService.getCurrentUser().getUserId();
-    if (!hasBookAuthentication(userID)) {
+    if (!oauthHelper.hasBookAuthentication(userID)) {
       this.output = "Please allow me to access your Google Books and Contact information first.";
       return;
     }
     setBookshelfInfoForUser();
-
     if (intentName.equals("library")) {
       handleLibraryIntent(parameters);
     } else if (intentName.equals("add")) {
@@ -108,6 +122,7 @@ public class BooksAgentHelper {
   }
 
   public String getDisplay() {
+    log.info(display);
     return this.display;
   }
 
@@ -124,7 +139,7 @@ public class BooksAgentHelper {
     if (BooksMemoryUtils.hasBookshelvesStored(userID, datastore)) {
       this.shelvesNames = BooksMemoryUtils.getStoredBookshelfNames(userID, datastore);
     } else {
-      this.shelvesNames = BookUtils.getBookshelvesNames(userID);
+      this.shelvesNames = bookUtils.getBookshelvesNames(userID, oauthHelper);
       BooksMemoryUtils.storeBookshelfNames(shelvesNames, userID, datastore);
     }
     this.lowerShelvesNames = allLowerCaseList(shelvesNames);
@@ -142,11 +157,9 @@ public class BooksAgentHelper {
   public void handleNewQueryIntents(String intentName, Map<String, Value> parameters)
       throws IOException {
     createNewQuery(intentName, parameters);
-    this.startIndex = 0;
-    if (intentName.equals("friendlikes")) {
-      if (!isValidFriend()) {
-        return;
-      }
+    // Case when new query does not create bookResults bc parameter friend is invalid
+    if (this.bookResults == null) {
+      return;
     }
     if (resultsReturned > 0) {
       handleNewQuerySuccess(intentName);
@@ -172,19 +185,26 @@ public class BooksAgentHelper {
     this.startIndex = 0;
 
     if (intentName.equals("search")) {
-      this.bookResults = BookUtils.getRequestedBooks(query, startIndex);
-      this.totalResults = BookUtils.getTotalVolumesFound(query, startIndex);
+      this.bookResults = bookUtils.getRequestedBooks(query, startIndex);
+      this.totalResults = bookUtils.getTotalVolumesFound(query, startIndex);
     } else if (intentName.equals("library")) {
-      this.bookResults = BookUtils.getBookShelfBooks(query, startIndex, userID);
-      this.totalResults = BookUtils.getTotalShelfVolumesFound(query, startIndex, userID);
+      this.bookResults = bookUtils.getBookShelfBooks(query, startIndex, userID, oauthHelper);
+      this.totalResults =
+          bookUtils.getTotalShelfVolumesFound(query, startIndex, userID, oauthHelper);
     } else {
       if (intentName.equals("friends")) {
-        this.bookResults = BooksMemoryUtils.getFriendsLikes(userID, datastore);
+        this.bookResults =
+            BooksMemoryUtils.getFriendsLikes(userID, datastore, oauthHelper, peopleUtils);
       } else if (intentName.equals("mylikes")) {
         this.bookResults = BooksMemoryUtils.getLikedBooksFromId(userID, "id", datastore);
       } else if (intentName.equals("friendlikes")) {
-        this.bookResults =
-            BooksMemoryUtils.getLikesOfFriend(userID, query.getFriendName(), datastore);
+        if (isValidFriend()) {
+          this.bookResults =
+              BooksMemoryUtils.getLikesOfFriend(
+                  userID, query.getFriendName(), datastore, oauthHelper, peopleUtils);
+        } else {
+          return;
+        }
       }
       this.totalResults = bookResults.size();
     }
@@ -204,7 +224,7 @@ public class BooksAgentHelper {
       this.output = "Which friend?";
       return false;
     }
-    if (!PeopleUtils.hasFriend(userID, friendName)) {
+    if (!peopleUtils.hasFriend(userID, friendName, oauthHelper)) {
       this.output = "I'm sorry. I don't recognize a " + friendName + " in your contact list.";
       return false;
     }
@@ -262,36 +282,40 @@ public class BooksAgentHelper {
     loadIndicesInfo(sessionID, queryID);
     String ending = getFulfillmentEnding(query);
     this.startIndex = getNextStartIndex(prevStartIndex, totalResults);
+    log.info("start index: " + Integer.toString(startIndex));
 
     if (startIndex == -1) {
       this.output = "This is the last page of " + ending;
       this.startIndex = prevStartIndex;
     } else if (isNextPageOfBooksStored()) {
+      log.info("next page stored ");
       replaceIndices(sessionID, queryID);
       this.output = "Here's the next page of " + ending;
     } else {
-      // Make public book search from stored query parameters at startIndex
+      // Make public book search from stored query parameters at resultsStored (next book)
       if (!query.isMyLibrary()) {
-        this.bookResults = BookUtils.getRequestedBooks(query, startIndex);
+        this.bookResults = bookUtils.getRequestedBooks(query, resultsStored);
       } else {
-        // Make private bookshelf search for userID from query parameters at startIndex
+        // Make private bookshelf search for userID from query parameters at resultsStored (next
+        // book)
         if (!userService.isUserLoggedIn()) {
           this.output = "Please login first.";
           return;
         }
         String userID = userService.getCurrentUser().getUserId();
-        this.bookResults = BookUtils.getBookShelfBooks(query, startIndex, userID);
+        this.bookResults = bookUtils.getBookShelfBooks(query, resultsStored, userID, oauthHelper);
       }
       int resultsReturned = bookResults.size();
-      int newResultsStored = resultsReturned + resultsStored;
-      this.resultsStored = newResultsStored;
-
       if (resultsReturned == 0) {
         this.output = "This is the last page of " + ending;
         this.startIndex = prevStartIndex;
       } else {
-        // Store Book results and new indices
-        BooksMemoryUtils.storeBooks(bookResults, startIndex, sessionID, queryID, datastore);
+        // Store Book results starting at resultsStored index
+        BooksMemoryUtils.storeBooks(bookResults, resultsStored, sessionID, queryID, datastore);
+
+        // Store new indices
+        int newResultsStored = resultsReturned + resultsStored;
+        this.resultsStored = newResultsStored;
         replaceIndices(sessionID, queryID);
         this.output = "Here's the next page of " + ending;
       }
@@ -384,7 +408,7 @@ public class BooksAgentHelper {
     if (parameters.get("bookshelf") == null
         || !lowerShelvesNames.contains(
             parameters.get("bookshelf").getStringValue().toLowerCase())) {
-      ArrayList<String> displayNames = BookUtils.getBookshelvesNames(userID);
+      ArrayList<String> displayNames = BooksMemoryUtils.getStoredBookshelfNames(userID, datastore);
       this.output = "Which bookshelf would you like to see?";
       this.display = listToJson(shelvesNames);
       this.redirect = "bookshelf-names";
@@ -410,15 +434,17 @@ public class BooksAgentHelper {
     if (parameters.get("bookshelf") == null
         || !lowerShelvesNames.contains(
             parameters.get("bookshelf").getStringValue().toLowerCase())) {
-      ArrayList<String> displayNames = BookUtils.getBookshelvesNames(userID);
+      ArrayList<String> displayNames = BooksMemoryUtils.getStoredBookshelfNames(userID, datastore);
       this.output = "Which bookshelf would you like to add " + requestedBook.getTitle() + " to?";
       this.display = listToJson(getValidAddShelves(shelvesNames, requestedBook));
+      this.redirect = queryID;
       return;
     }
     String bookshelfName = parameters.get("bookshelf").getStringValue();
+    bookshelfName = bookshelfName.substring(0, 1).toUpperCase() + bookshelfName.substring(1);
     String volumeId = requestedBook.getVolumeId();
     try {
-      BookUtils.addToBookshelf(bookshelfName, userID, volumeId);
+      bookUtils.addToBookshelf(bookshelfName, userID, volumeId, oauthHelper);
       this.output =
           "I've added " + requestedBook.getTitle() + " to your " + bookshelfName + " bookshelf.";
       setSingleBookDisplay(requestedBook);
@@ -453,7 +479,7 @@ public class BooksAgentHelper {
             bookNumber, prevStartIndex, sessionID, queryID, datastore);
     String volumeId = requestedBook.getVolumeId();
     try {
-      BookUtils.deleteFromBookshelf(shelfName, userID, volumeId);
+      bookUtils.deleteFromBookshelf(shelfName, userID, volumeId, oauthHelper);
       this.output =
           "I've deleted " + requestedBook.getTitle() + " from your " + shelfName + " bookshelf.";
       setSingleBookDisplay(requestedBook);
@@ -466,17 +492,6 @@ public class BooksAgentHelper {
               + shelfName
               + " bookshelf.";
     }
-  }
-
-  /**
-   * This function determines if the current user has stored book credentials
-   *
-   * @param userID ID of current user logged in
-   * @return boolean indicating if user has book credentials
-   */
-  private boolean hasBookAuthentication(String userID) throws IOException {
-    OAuthHelper helper = new OAuthHelper();
-    return (helper.loadUserCredential(userID) != null);
   }
 
   /**
@@ -534,7 +549,14 @@ public class BooksAgentHelper {
   private void setBookListDisplay() throws IOException {
     ArrayList<Book> booksToDisplay =
         BooksMemoryUtils.getStoredBooksToDisplay(
-            displayNum, startIndex, sessionID, queryID, datastore, userService);
+            displayNum,
+            startIndex,
+            sessionID,
+            queryID,
+            datastore,
+            userService,
+            oauthHelper,
+            peopleUtils);
     this.display = listToJson(booksToDisplay);
   }
 
@@ -544,7 +566,8 @@ public class BooksAgentHelper {
   private void setSingleBookDisplay(Book book) throws IOException {
     if (userService.isUserLoggedIn()) {
       ArrayList<Book> likedBooks = BooksMemoryUtils.getLikedBooksFromId(sessionID, "id", datastore);
-      ArrayList<Book> friendsLikes = BooksMemoryUtils.getFriendsLikes(sessionID, datastore);
+      ArrayList<Book> friendsLikes =
+          BooksMemoryUtils.getFriendsLikes(sessionID, datastore, oauthHelper, peopleUtils);
       book = BooksMemoryUtils.assignLikeCount(book, sessionID, friendsLikes, datastore);
       book = BooksMemoryUtils.assignLikeStatus(book, sessionID, likedBooks, datastore);
     }
@@ -557,8 +580,8 @@ public class BooksAgentHelper {
    */
   private void refreshBookshelf() throws IOException {
     this.startIndex = 0;
-    this.bookResults = BookUtils.getBookShelfBooks(query, startIndex, userID);
-    this.totalResults = BookUtils.getTotalShelfVolumesFound(query, startIndex, userID);
+    this.bookResults = bookUtils.getBookShelfBooks(query, startIndex, userID, oauthHelper);
+    this.totalResults = bookUtils.getTotalShelfVolumesFound(query, startIndex, userID, oauthHelper);
     this.resultsReturned = bookResults.size();
     BooksMemoryUtils.deleteStoredEntities("Book", sessionID, queryID, datastore);
     BooksMemoryUtils.storeBooks(bookResults, startIndex, sessionID, queryID, datastore);
@@ -575,6 +598,10 @@ public class BooksAgentHelper {
    */
   private void replaceIndices(String sessionID, String queryID) {
     BooksMemoryUtils.deleteStoredEntities("Indices", sessionID, queryID, datastore);
+    log.info(Integer.toString(startIndex));
+    log.info(Integer.toString(totalResults));
+    log.info(Integer.toString(resultsStored));
+    log.info(Integer.toString(displayNum));
     BooksMemoryUtils.storeIndices(
         startIndex, totalResults, resultsStored, displayNum, sessionID, queryID, datastore);
   }

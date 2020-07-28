@@ -29,8 +29,7 @@ import java.util.ArrayList;
  * output display and text for the user
  *
  * <p>A Book object is only created by createBook() function, ensuring that any Book object is only
- * created with valid parameters and that all Book objects have valid title and description
- * properties.
+ * created with valid parameters and that all Book objects havea valid title property.
  */
 public class Book implements Serializable {
 
@@ -101,17 +100,13 @@ public class Book implements Serializable {
    * fields from the parameters. The rest of the properties will be set to an Empty String.
    *
    * @param title String title of book
-   * @param authors String authors of book
-   * @param description String description of book
-   * @param embeddable Bool indicating whether book is embeddable
-   * @param isbn String unique ISBN number
    */
-  public Book(String title, String authors, String description, Boolean embeddable, String isbn) {
+  public Book(String title) {
     this.title = title;
-    this.authors = authors;
-    this.description = description;
-    this.embeddable = embeddable;
-    this.isbn = isbn;
+    this.authors = "";
+    this.description = "";
+    this.embeddable = false;
+    this.isbn = "";
     this.publishedDate = "";
     this.averageRating = "";
     this.infoLink = "";
@@ -120,6 +115,46 @@ public class Book implements Serializable {
     this.textSnippet = "";
     this.volumeId = "";
     this.likedBy = new ArrayList<String>();
+  }
+
+  /**
+   * Public Book constructor, used for testing purposes with authors, description, embeddable, and
+   * order fields specified. The rest of the properties will be set to an Empty String.
+   *
+   * @param title String title of book
+   * @param authors String authors of book
+   * @param description String description of book
+   * @param embeddable Bool indicating whether book is embeddable
+   * @param isbn String unique ISBN number
+   * @param order order stored in datastore
+   */
+  public Book(
+      String title,
+      String authors,
+      String description,
+      Boolean embeddable,
+      String isbn,
+      int order) {
+    this(title);
+    this.authors = authors;
+    this.description = description;
+    this.embeddable = embeddable;
+    this.isbn = isbn;
+    this.order = order;
+  }
+
+  /**
+   * Public Book constructor, used for autenticated user testing purposes with volumeId and order
+   * properties specfied. The rest of the properties will be set to an Empty String.
+   *
+   * @param title String title of book
+   * @param volumeId unique volume ID for book within Google Books API
+   * @param order order stored in datastore
+   */
+  public Book(String title, String volumeId, int order) {
+    this(title);
+    this.volumeId = volumeId;
+    this.order = order;
   }
 
   @Override
