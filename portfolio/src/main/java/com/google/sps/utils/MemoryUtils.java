@@ -378,7 +378,8 @@ public class MemoryUtils {
       List<String> items,
       boolean newList)
       throws InvalidRequestException {
-    log.info("making storeInfo api request");
+
+    // log.info("making storeInfo api request");
     // RestTemplate restTemplate = new RestTemplate();
     // String urlString = "https://arliu-step-2020-3.wl.r.appspot.com/storeInfo?userID=" + userID +
     // "&stemmedListName=" + stemmedListName + "&newList=" + newList;
@@ -442,7 +443,8 @@ public class MemoryUtils {
    */
   private static List<Pair<String, Double>> callRecommendationsAPI(
       String methodName, String userID, String stemmedListName) throws URISyntaxException {
-    log.info("making pastUserRecs api request");
+
+    // log.info("making pastUserRecs api request");
     // RestTemplate restTemplate = new RestTemplate();
     // String urlString = "https://arliu-step-2020-3.wl.r.appspot.com/" + methodName + "?userID=" +
     // userID + "&stemmedListName=" + stemmedListName;

@@ -124,7 +124,7 @@ public class TestHelper {
   }
 
   /**
-   * Gets the output object created by agent fulfillment after at the end of back-end process.
+   * Gets the output object created by agent fulfillment import at the end of back-end process.
    *
    * @return Output object identical to that which is passed back to javascript.
    */
@@ -421,24 +421,26 @@ public class TestHelper {
     }
   }
 
-/**
-  * Runs one command for making a single grocery list
-  *
-  * @param userID Current user's ID
-  * @param listAction Either "make" or "add" depending on the command user wants to make
-  * @param items List of pairs of strings containing the name of all items expected and integer containing the number of times added to past grocery lists.
-  */
-  public void createSingleGroceryList(String userID, String listAction, String items) throws InvalidProtocolBufferException {
-      setUser("test@example.com", userID);
-      setParameters(
-          listAction + " a grocery list with " + items,
-          "{\"list-name\":\"grocery\", "
-              + "\"list-objects\":\""
-              + items
-              + "\","
-              + "\"new-list\": \"\","
-              + "\"generic-list\": \"\"}",
-          "memory.list - " + listAction);
+  /**
+   * Runs one command for making a single grocery list
+   *
+   * @param userID Current user's ID
+   * @param listAction Either "make" or "add" depending on the command user wants to make
+   * @param items List of pairs of strings containing the name of all items expected and integer
+   *     containing the number of times added to past grocery lists.
+   */
+  public void createSingleGroceryList(String userID, String listAction, String items)
+      throws InvalidProtocolBufferException {
+    setUser("test@example.com", userID);
+    setParameters(
+        listAction + " a grocery list with " + items,
+        "{\"list-name\":\"grocery\", "
+            + "\"list-objects\":\""
+            + items
+            + "\","
+            + "\"new-list\": \"\","
+            + "\"generic-list\": \"\"}",
+        "memory.list - " + listAction);
   }
 
   private class TestableTextInputServlet extends TextInputServlet {

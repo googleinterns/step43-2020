@@ -31,7 +31,8 @@ public class WorkoutPlanProgressServlet extends HttpServlet {
         Integer.valueOf(request.getParameter("num-workout-days-completed"));
 
     // Update Workout Plan in datastore with number of workout days completed
-    WorkoutProfileUtils.updateSavedWorkoutPlan(
+    WorkoutProfileUtils workoutProfileUtils = new WorkoutProfileUtils();
+    workoutProfileUtils.updateSavedWorkoutPlan(
         userId, workoutPlanId, numWorkoutDaysCompleted, datastore);
   }
 }
