@@ -138,7 +138,7 @@ public class TestHelper {
   }
 
   /**
-   * Gets the output object created by agent fulfillment after at the end of back-end process.
+   * Gets the output object created by agent fulfillment import at the end of back-end process.
    *
    * @return Output object identical to that which is passed back to javascript.
    */

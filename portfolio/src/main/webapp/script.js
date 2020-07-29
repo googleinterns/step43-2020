@@ -139,6 +139,7 @@ function authSetup() {
         createWorkoutDashboardButton();
     } else if (displayText.logButton == "Login") {
         isUserLoggedIn = false;
+        document.getElementsByClassName("workout-dashboard-link")[0].style.display = "none";
     }
     window.userPhoto = displayText.photoUrl;
     var body = document.body;

@@ -3,6 +3,7 @@ package com.google.sps.utils;
 import com.google.appengine.api.datastore.Blob;
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.Entity;
+import com.google.appengine.api.datastore.FetchOptions;
 import com.google.appengine.api.datastore.PreparedQuery;
 import com.google.appengine.api.datastore.Query;
 import com.google.appengine.api.datastore.Query.CompositeFilter;
@@ -16,8 +17,12 @@ import com.google.sps.data.YouTubeVideo;
 import java.util.ArrayList;
 import java.util.Arrays;
 import org.apache.commons.lang3.SerializationUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class WorkoutProfileUtils {
+
+  private static Logger log = LoggerFactory.getLogger(WorkoutProfileUtils.class);
 
   /**
    * Stores all generated workout plans if user is logged in
@@ -300,5 +305,21 @@ public class WorkoutProfileUtils {
         Arrays.asList(
             new FilterPredicate("userId", FilterOperator.EQUAL, userId),
             new FilterPredicate("workoutVideoId", FilterOperator.EQUAL, workoutVideoId)));
+  }
+
+  /**
+   * Deletes all datastore entities with specific entity name
+   *
+   * @param entityName name of Entity to delete
+   * @param datastore DatastoreService instance to delete entities from
+   */
+  public static void deleteStoredEntities(String entityName, DatastoreService datastore) {
+    Query query = new Query(entityName);
+    PreparedQuery results = datastore.prepare(query);
+    log.info(String.valueOf(results.asList(FetchOptions.Builder.withDefaults()).size()));
+    for (Entity entity : results.asIterable()) {
+      datastore.delete(entity.getKey());
+    }
+    log.info(String.valueOf(results.asList(FetchOptions.Builder.withDefaults()).size()));
   }
 }
