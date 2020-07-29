@@ -230,6 +230,13 @@
       <version>1.9</version>
     </dependency>
 
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-lang3</artifactId>
+      <version>3.4</version>
+    </dependency>
+
+
   </dependencies>
 
   <build>
@@ -253,7 +260,7 @@
         <version>2.19.1</version>
         <configuration>
           <redirectTestOutputToFile>true</redirectTestOutputToFile>
-          <skipTests>true</skipTests>
+          <!-- <skipTests>true</skipTests> -->
         </configuration>
       </plugin>
 

@@ -14,12 +14,14 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @WebServlet("/save-video")
 public class SaveVideoServlet extends HttpServlet {
-
-  private DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
-  private UserService userService = UserServiceFactory.getUserService();
+  private static Logger log = LoggerFactory.getLogger(SaveVideoServlet.class);
+  private DatastoreService datastore = createDatastore();
+  private UserService userService = createUserService();
 
   /** Saves workout videos to user profile when save video button is clicked */
   @Override
@@ -31,11 +33,12 @@ public class SaveVideoServlet extends HttpServlet {
     String workoutVideoId = (String) workoutVideoJson.get("videoId");
 
     // Getting workout plan from all stored workout plans that user wants to save
+    WorkoutProfileUtils workoutProfileUtils = new WorkoutProfileUtils();
     YouTubeVideo workoutVideoToSave =
-        WorkoutProfileUtils.getStoredWorkoutVideo(userId, workoutVideoId, datastore);
+        workoutProfileUtils.getStoredWorkoutVideo(userId, workoutVideoId, datastore);
 
     // Saves workout plan
-    WorkoutProfileUtils.saveWorkoutVideo(workoutVideoToSave, datastore);
+    workoutProfileUtils.saveWorkoutVideo(workoutVideoToSave, datastore);
   }
 
   /** Gets saved videos to display on workout dashboard for specific user */
@@ -43,9 +46,20 @@ public class SaveVideoServlet extends HttpServlet {
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
     response.setContentType("application/json");
     String userId = userService.getCurrentUser().getUserId();
+
+    // Getting all saved workout videos saving them response
+    WorkoutProfileUtils workoutProfileUtils = new WorkoutProfileUtils();
     ArrayList<YouTubeVideo> savedWorkoutVideos =
-        WorkoutProfileUtils.getSavedWorkoutVideos(userId, datastore);
+        workoutProfileUtils.getSavedWorkoutVideos(userId, datastore);
     String json = new Gson().toJson(savedWorkoutVideos);
     response.getWriter().write(json);
+  }
+
+  protected UserService createUserService() {
+    return UserServiceFactory.getUserService();
+  }
+
+  protected DatastoreService createDatastore() {
+    return DatastoreServiceFactory.getDatastoreService();
   }
 }

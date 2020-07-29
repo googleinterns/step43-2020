@@ -41,6 +41,8 @@ public class WorkoutAgent implements Agent {
   private String userSaved = "";
   private String amount = "";
   private String unit = "";
+  private VideoUtils videoUtils;
+  private WorkoutProfileUtils workoutProfileUtils;
   private static final int videosDisplayedTotal = 25;
   private static final int videosDisplayedPerPage = 5;
   private static final int maxPlaylistResults = 5;
@@ -65,6 +67,38 @@ public class WorkoutAgent implements Agent {
     this.intentName = intentName;
     this.datastore = datastore;
     this.userService = userService;
+    videoUtils = new VideoUtils();
+    workoutProfileUtils = new WorkoutProfileUtils();
+    setParameters(parameters);
+  }
+
+  /**
+   * Workout agent constructor used for testing purposes that uses intent and parameters to
+   * determnine fulfillment and display for user request
+   *
+   * @param intentName String containing the specific workout agent intent requeste by user
+   * @param parameters Map containing the detected entities in the user's intent
+   * @param userService UserService instance to access userId and other user info
+   * @param datastore DatastoreService instance used to access saved workout plans from the user's
+   *     database
+   * @param videoUtils VideoUtils instance to access methods to get videos and playlists
+   * @param workoutProfileUtils WorkoutProfileUtils instance to access methods for storing and
+   *     saving videos/plans
+   */
+  public WorkoutAgent(
+      String intentName,
+      Map<String, Value> parameters,
+      UserService userService,
+      DatastoreService datastore,
+      VideoUtils videoUtils,
+      WorkoutProfileUtils workoutProfileUtils)
+      throws IllegalStateException, IOException, ApiException, InterruptedException,
+          ArrayIndexOutOfBoundsException {
+    this.intentName = intentName;
+    this.datastore = datastore;
+    this.userService = userService;
+    this.videoUtils = videoUtils;
+    this.workoutProfileUtils = workoutProfileUtils;
     setParameters(parameters);
   }
 
@@ -103,7 +137,6 @@ public class WorkoutAgent implements Agent {
    * @param parameters parameter Map from Dialogflow
    */
   private void workoutFind(Map<String, Value> parameters) throws IOException {
-
     if (parameters.get("duration").hasStructValue()) {
       Struct durationStruct = parameters.get("duration").getStructValue();
       Map<String, Value> durationMap = durationStruct.getFieldsMap();
@@ -146,7 +179,6 @@ public class WorkoutAgent implements Agent {
    * Data API call from VideoUtils to get passed into workout.js
    */
   private void setWorkoutFindDisplay() throws IOException {
-
     // Removing white space so search URL does not have spaces
     workoutLength = workoutLength.replaceAll("\\s", "");
     workoutType = workoutType.replaceAll("\\s", "");
@@ -154,12 +186,12 @@ public class WorkoutAgent implements Agent {
 
     // Make API call to WorkoutUtils to get ArrayList of YouTubeVideos
     ArrayList<YouTubeVideo> videoList =
-        VideoUtils.getVideoList(
+        videoUtils.getVideoList(
             userService, workoutLength, workoutType, youtubeChannel, videosDisplayedTotal, "video");
 
     if (userService.isUserLoggedIn()) {
       for (YouTubeVideo video : videoList) {
-        WorkoutProfileUtils.storeWorkoutVideo(datastore, video);
+        workoutProfileUtils.storeWorkoutVideo(datastore, video);
       }
     }
 
@@ -224,10 +256,10 @@ public class WorkoutAgent implements Agent {
 
     // Make API call to VideoUtils to get WorkoutPlan object
     WorkoutPlan workoutPlan =
-        VideoUtils.getWorkoutPlan(
+        videoUtils.getWorkoutPlan(
             userService, datastore, maxPlaylistResults, planLength, workoutType, "playlist");
     if (userService.isUserLoggedIn()) {
-      WorkoutProfileUtils.storeWorkoutPlan(datastore, workoutPlan);
+      workoutProfileUtils.storeWorkoutPlan(datastore, workoutPlan);
     }
     display = new Gson().toJson(workoutPlan);
   }

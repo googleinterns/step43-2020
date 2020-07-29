@@ -154,6 +154,7 @@ function authSetup() {
         createWorkoutDashboardButton();
     } else if (displayText.logButton == "Login") {
         isUserLoggedIn = false;
+        document.getElementsByClassName("workout-dashboard-link")[0].style.display = "none";
     }
     getSessionID();
     // Clears any stored information in Datastore for this session upon loading

@@ -276,6 +276,7 @@ function createNewPlanTable(videos, workoutPlan, onDashboard) {
 
   for (var i = 0; i < videos.length; i++) {
       video = videos[i];
+
       channelName = video.channelTitle.replace(/"/g, "");
       title = video.title.replace(/"/g, "");
       videoURL = video.videoURL.replace(/"/g, "");
@@ -350,7 +351,7 @@ function createWorkoutPlanFooter(workoutPlan) {
         viewPlaylistButton.appendChild(buttonText); 
         workoutPlanFooter.appendChild(viewPlaylistButton);
 
-        var playlistURL = "https://www.youtube.com/playlist?list=" + workoutPlan.playlistId.replace(/"/g, "");
+        var playlistURL = "https://www.youtube.com/playlist?list=" + workoutPlan.playlistId;
         viewPlaylistButton.onclick = function() {window.open(playlistURL, "_blank");};
 
     } else {

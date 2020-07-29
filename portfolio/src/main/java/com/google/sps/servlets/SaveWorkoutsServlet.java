@@ -18,8 +18,8 @@ import org.json.JSONObject;
 @WebServlet("/save-workouts")
 public class SaveWorkoutsServlet extends HttpServlet {
 
-  private DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
-  private UserService userService = UserServiceFactory.getUserService();
+  private DatastoreService datastore = createDatastore();
+  private UserService userService = createUserService();
 
   /** Saves workout plans to user profile when save button is clicked */
   @Override
@@ -31,11 +31,12 @@ public class SaveWorkoutsServlet extends HttpServlet {
     int workoutPlanId = (int) workoutPlanJson.get("workoutPlanId");
 
     // Getting workout plan from all stored workout plans that user wants to save
+    WorkoutProfileUtils workoutProfileUtils = new WorkoutProfileUtils();
     WorkoutPlan workoutPlanToSave =
-        WorkoutProfileUtils.getStoredWorkoutPlan(userId, workoutPlanId, datastore);
+        workoutProfileUtils.getStoredWorkoutPlan(userId, workoutPlanId, datastore);
 
     // Saves workout plan
-    WorkoutProfileUtils.saveWorkoutPlan(workoutPlanToSave, datastore);
+    workoutProfileUtils.saveWorkoutPlan(workoutPlanToSave, datastore);
   }
 
   /** Gets saved workouts to display on workout dashboard for specific user */
@@ -43,9 +44,20 @@ public class SaveWorkoutsServlet extends HttpServlet {
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
     response.setContentType("application/json");
     String userId = userService.getCurrentUser().getUserId();
+
+    // Getting saved workout plans
+    WorkoutProfileUtils workoutProfileUtils = new WorkoutProfileUtils();
     ArrayList<WorkoutPlan> savedWorkoutPlans =
-        WorkoutProfileUtils.getSavedWorkoutPlans(userId, datastore);
+        workoutProfileUtils.getSavedWorkoutPlans(userId, datastore);
     String json = new Gson().toJson(savedWorkoutPlans);
     response.getWriter().write(json);
+  }
+
+  protected UserService createUserService() {
+    return UserServiceFactory.getUserService();
+  }
+
+  protected DatastoreService createDatastore() {
+    return DatastoreServiceFactory.getDatastoreService();
   }
 }
