@@ -260,6 +260,7 @@ public class VideoUtils {
    * @param videoString JSON string of YouTube video from API call
    */
   private static void setVideoParameters(String videoString) {
+    // Assigning correct values from JSONObject to string
     JSONObject videoJSONObject = new JSONObject(videoString).getJSONObject("map");
     JSONObject id = videoJSONObject.getJSONObject("id").getJSONObject("map");
     videoId = new Gson().toJson(id.get("videoId"));

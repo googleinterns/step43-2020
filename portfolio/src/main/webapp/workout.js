@@ -59,14 +59,19 @@ function createVideoDivs(videos, indexStart, indexEnd) {
 
   for (var i = indexStart; i < indexEnd; i++) {
     video = videos[i];
-    channelName = video.channelTitle;
 
-    title = video.title.replace(/"/g, "")
+    //Get video parameters and get rid of extra double quotes
+    title = video.title.replace(/"/g, "");
+    description = video.description.replace(/"/g, "");
+    videoURL = video.videoURL.replace(/"/g, "");
+    thumbnail = video.thumbnail.replace(/"/g, "");
+    channelURL = video.channelURL.replace(/"/g, "");
+    channelName = video.channelTitle.replace(/"/g, "");
+
     if (title.length > 80) { 
         title = title.substring(0, 80) + "..."; 
     }
-
-    description = video.description;
+    
     if (description.length > 170) {
         description = description.substring(0, 170) + "...";
     }
@@ -86,11 +91,11 @@ function createVideoDivs(videos, indexStart, indexEnd) {
 
     var videoLink = document.createElement("a");
     videoLink.title = title;
-    videoLink.href = video.videoURL.replace(/"/g, "");
+    videoLink.href = videoURL;
     videoLink.target = "_blank";    
 
     var thumbnailImage = document.createElement("img");
-    thumbnailImage.src = video.thumbnail.replace(/"/g, "");
+    thumbnailImage.src = thumbnail;
     thumbnailImage.setAttribute("width", "320");
     thumbnailImage.setAttribute("height", "180");
     videoLink.appendChild(thumbnailImage);
@@ -104,7 +109,7 @@ function createVideoDivs(videos, indexStart, indexEnd) {
 
     var videoTitleLink = document.createElement("a");
     videoTitleLink.title = title;
-    videoTitleLink.href = video.videoURL.replace(/"/g, "");
+    videoTitleLink.href = videoURL;
     videoTitleLink.target = "_blank"; 
 
     var videoTitle = document.createElement("h3");
@@ -115,18 +120,18 @@ function createVideoDivs(videos, indexStart, indexEnd) {
 
     var channelLink = document.createElement("a");
     channelLink.title = channelName;
-    channelLink.href = video.channelURL.replace(/"/g, "");
+    channelLink.href = channelURL;
     channelLink.target = "_blank"; 
 
     var channelTitle = document.createElement("p");
     channelTitle.className = "channel-title";
-    channelTitle.innerHTML = channelName.replace(/"/g, "");
+    channelTitle.innerHTML = channelName;
     channelLink.appendChild(channelTitle)
     videoInfo.appendChild(channelLink);
 
     var videoDescription = document.createElement("p");
     videoDescription.className = "video-description";
-    videoDescription.innerHTML = description.replace(/"/g, "");
+    videoDescription.innerHTML = description;
     videoInfo.appendChild(videoDescription);
     
     //Save Video Button (only add if user is logged in) 
@@ -271,9 +276,10 @@ function createNewPlanTable(videos, workoutPlan, onDashboard) {
 
   for (var i = 0; i < videos.length; i++) {
       video = videos[i];
-      channelName = video.channelTitle;
+      channelName = video.channelTitle.replace(/"/g, "");
       title = video.title.replace(/"/g, "");
-      description = video.description.replace(/"/g, "");
+      videoURL = video.videoURL.replace(/"/g, "");
+      
       if (title.length > 43) {
           title = title.substring(0, 43) + "...";
       }
@@ -292,7 +298,7 @@ function createNewPlanTable(videos, workoutPlan, onDashboard) {
       var tableVideoLink = document.createElement("a");
       tableVideoLink.className = "table-video-link";
       tableVideoLink.title = title;
-      tableVideoLink.href = video.videoURL.replace(/"/g, "");
+      tableVideoLink.href = videoURL;
       tableVideoLink.target = "_blank";
 
       var tableVideoTitle = document.createElement("p");

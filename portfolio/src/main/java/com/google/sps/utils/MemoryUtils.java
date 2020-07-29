@@ -14,8 +14,7 @@ import com.google.appengine.api.datastore.Query.SortDirection;
 import com.google.appengine.api.log.InvalidRequestException;
 import com.google.protobuf.Value;
 import com.google.sps.agents.Memory;
-import com.google.sps.data.Pair;
-import com.google.sps.data.RecommendationsClient;
+import com.google.sps.data.Pair;import com.google.sps.data.RecommendationsClient;
 import java.net.URISyntaxException;
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -27,6 +26,12 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.client.RestTemplate;
+
 
 public class MemoryUtils {
 
@@ -374,6 +379,36 @@ public class MemoryUtils {
   }
 
   /**
+   * Stores the integer aggregate count of number of times user has placed a given item in a list.
+   *
+   * @param datastore Database entity to retrieve data from
+   * @param userID The logged-in user's ID
+   * @param stemmedListName The stemmed name of the list to store aggregation information for.
+   * @param items List of strings containing items that were newly added.
+   * @param newList Indicates whether the list is a new list (true) or updating existing (false)
+   */
+  public static void saveAggregateListData(
+      DatastoreService datastore,
+      String userID,
+      String stemmedListName,
+      List<String> items,
+      boolean newList)
+      throws InvalidRequestException {
+    log.info("making storeInfo api request");
+    RestTemplate restTemplate = new RestTemplate();
+    String urlString = "https://arliu-step-2020-3.wl.r.appspot.com/storeInfo?userID=" + userID +
+    "&stemmedListName=" + stemmedListName + "&newList=" + newList;
+    HttpEntity<List<String>> entity = new HttpEntity<>(items);
+    log.info("http entity: " + entity.getBody());
+    ResponseEntity<Void> result = restTemplate.exchange(urlString, HttpMethod.POST, entity,
+    Void.class);
+    if (result.getStatusCode() != HttpStatus.OK) {
+      throw new InvalidRequestException("Error sending info to recommendations API.");
+    }
+    log.info("storeInfo success");
+  }
+
+  /**
    * Makes recommendations based on the user's past history of list items. Will only make
    * recommendations if the user has at least 3 lists of the same name. Recommendations are made
    * based on the top 3 items that the user has placed on at least 50% of previous lists.
@@ -409,9 +444,45 @@ public class MemoryUtils {
       throws IllegalStateException, EntityNotFoundException, URISyntaxException {
     String stemmedListName = StemUtils.stemmed(listName);
     List<String> stemmedCurrentListItems = getCurrentItems(userID, datastore, stemmedListName);
+
     List<Pair<String, Double>> itemPairs = recommender.getUserRecommendations(stemmedListName);
     List<String> formattedResult = filterTopResults(itemPairs, stemmedCurrentListItems);
     return getSuggestedItems(formattedResult);
+  }
+
+  /**
+   * Calls recommendations API to get any possible list item recommendations for the user. Throws
+   * URISyntaxException if there is an error in URI creation. Otherwise, if no item suggestions
+   * exist, returns an empty list.
+   *
+   * @param methodName String name of the type of recommendation requested (pastUser or generalUser)
+   * @param userID String representing the ID of the user giving recommendations for
+   * @param stemmedListName Stemmed name of the list we are providing recommendations for.
+   * @return String containing up to 3 items to recommend to the user.
+   */
+  private static List<Pair<String, Double>> callRecommendationsAPI(
+      String methodName, String userID, String stemmedListName) throws URISyntaxException {
+    log.info("making pastUserRecs api request");
+    RestTemplate restTemplate = new RestTemplate();
+    String urlString = "https://arliu-step-2020-3.wl.r.appspot.com/" + methodName + "?userID=" +
+    userID + "&stemmedListName=" + stemmedListName;
+    URI uri = new URI(urlString);
+    ResponseEntity<List> result = restTemplate.getForEntity(uri, List.class);
+    if (result.getStatusCode() != HttpStatus.OK) {
+      throw new InvalidRequestException("Error sending info to recommendations API.");
+    }
+    log.info("pastUserRecs success");
+    List<LinkedHashMap<String, Double>> resultList = result.getBody();
+    Gson gson = new Gson();
+    List<Pair<String, Double>> formattedList = resultList.stream().map(e ->
+    makePair(e)).collect(Collectors.toList());
+    return formattedList;
+  }
+
+  private static Pair<String, Double> makePair(LinkedHashMap e) {
+    String key = (String) e.get("key");
+    double value = (double) e.get("value");
+    return new Pair<>(key, value);
   }
 
   /**

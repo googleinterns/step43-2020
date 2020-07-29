@@ -342,7 +342,7 @@ function saveWorkoutPlan(workoutPlan){
 }
 
 function updateDropdownScroll(element) {
-  element.scrollTop =  0;
+  element.scrollTop = 0;
 }
 
 /** Saves workout video using SaveVideoServlet for current user
