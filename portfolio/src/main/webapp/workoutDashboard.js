@@ -48,7 +48,7 @@ function displayUserInfo() {
     //User contact info
     var userContact = document.createElement("div");
     userContact.className = "user-contact";
-    var name = document.createElement("h3");
+    var name = document.createElement("h1");
     name.innerHTML = userName;
     userContact.appendChild(name);
     var email = document.createElement("p");
@@ -129,24 +129,40 @@ function displayWorkoutPlan() {
     var storedWorkoutPlan = window.localStorage.getItem(storageKey);
     storedWorkoutPlan = JSON.parse(storedWorkoutPlan);
 
+    //Workout Plan Container
+    var workoutPlanContainer = document.getElementsByClassName("workout-plan-container")[0];
+
     //Workout Plan Header
     var workoutPlanHeader = document.getElementsByClassName("workout-plan-header")[0];
     var workoutPlanTitle = document.createElement("h1");
     workoutPlanTitle.innerHTML = storedWorkoutPlan.workoutPlanName;
     workoutPlanHeader.appendChild(workoutPlanTitle);
+    workoutPlanContainer.appendChild(workoutPlanHeader);
 
     //Workout Progress
     var workoutPlanProgress = document.getElementsByClassName("workout-plan-progress")[0];
     var progress = document.createElement("h3");
     progress.id = "progress";
-    var progressPercentage = storedWorkoutPlan.numWorkoutDaysCompleted / storedWorkoutPlan.planLength;
-    progress.innerHTML = "Progress: " + progressPercentage;
+    var progressPercentage = Math.round((storedWorkoutPlan.numWorkoutDaysCompleted / storedWorkoutPlan.planLength) * 100);
+    progress.innerHTML = "Progress: " + progressPercentage + "%";
     workoutPlanProgress.appendChild(progress);
+    workoutPlanContainer.appendChild(workoutPlanProgress);
 
     //Workout Plan Table
-    dashboardWorkoutPlan = document.getElementsByClassName("workout-plan")[0];
-    workoutPlanTable = createWorkoutPlanTable(storedWorkoutPlan, true, 1, false);
-    dashboardWorkoutPlan.appendChild(workoutPlanTable);
+    var workoutPlanTable = document.getElementsByClassName("workout-plan-table")[0];
+    var dashboardWorkoutPlan = createWorkoutPlanTable(storedWorkoutPlan, true, 1, false);
+    workoutPlanTable.appendChild(dashboardWorkoutPlan);
+    workoutPlanContainer.appendChild(workoutPlanTable);
+
+    //Back to Dashboard Button Link
+    var dashboardDiv = document.getElementsByClassName("dashboard-link")[0];
+    var dashboardLink = document.createElement("a");
+    dashboardLink.className = "back-to-dashboard-link";
+    dashboardLink.title = "Back to Dashboard";
+    dashboardLink.innerHTML = "Back to Dashboard"
+    dashboardLink.href = "dashboard.html";
+    dashboardDiv.appendChild(dashboardLink);
+    workoutPlanContainer.appendChild(dashboardDiv);
 }
 
 /** Stores workoutPlanId to be able to display correct workout plan when link clicked

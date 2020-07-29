@@ -18,6 +18,7 @@ public class YouTubeVideo implements Serializable {
   private int videosDisplayedPerPage;
   private int currentPage;
   private int totalPages;
+  private static final long serialVersionUID = 5716459602340197781L;
 
   public YouTubeVideo(
       String channelTitle,
