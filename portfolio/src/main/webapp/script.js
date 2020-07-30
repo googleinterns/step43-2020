@@ -152,6 +152,8 @@ function authSetup() {
     if (displayText.logButton == "Logout") {
         isUserLoggedIn = true;
         createWorkoutDashboardButton();
+    } else if (displayText.logButton == "Login") {
+        isUserLoggedIn = false;
     }
     getSessionID();
     // Clears any stored information in Datastore for this session upon loading
@@ -348,6 +350,38 @@ function saveWorkoutPlan(workoutPlan){
       method: 'POST'
   }).then(response => response.text()).then(() => {
       console.log('Saved workout plan');
+  });
+}
+
+/** Saves workout video using SaveVideoServlet for current user
+ *
+ * @param workoutVideo workoutVideo string with userId and videoId 
+ */
+
+function saveWorkoutVideo(videos, buttonId) {
+
+  workoutVideo = videos[parseInt(buttonId)];
+
+  //Change button text to show user that video has been saved
+  var buttonToMark = document.getElementById(buttonId);
+  var oldButtonText = buttonToMark.childNodes[0];
+
+  if (oldButtonText.textContent == "Save Video") {
+    buttonToMark.removeChild(oldButtonText);
+    var newButtonText = document.createTextNode("Saved!");
+    buttonToMark.appendChild(newButtonText); 
+  }
+
+  //Create new JSON oject for workout video to be saved
+  var savedWorkoutVideo = new Object();
+  savedWorkoutVideo.userId = workoutVideo.userId;
+  savedWorkoutVideo.videoId  = workoutVideo.videoId;
+  var workoutVideoString = JSON.stringify(savedWorkoutVideo);
+
+  fetch('/save-video' + '?workout-video=' + workoutVideoString, {
+      method: 'POST'
+  }).then(response => response.text()).then(() => {
+      console.log('Saved workout video');
   });
 }
 
