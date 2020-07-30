@@ -201,6 +201,16 @@ function displaySavedWorkoutVideos() {
 function createVideoContainer(savedWorkoutVideo) {
     workoutVideo = JSON.parse(savedWorkoutVideo);
 
+    videoURL = workoutVideo.videoURL.replace(/"/g, "");
+    thumbnail = workoutVideo.thumbnail.replace(/"/g, "");
+    videoTitle = workoutVideo.title.replace(/"/g, "");
+    channelURL = workoutVideo.channelURL.replace(/"/g, "");
+    channelName = workoutVideo.channelTitle.replace(/"/g, "");
+
+    if (videoTitle.length > 30) {
+        videoTitle = videoTitle.substring(0, 30) + "..."; 
+    }
+
     var savedWorkoutVideo = document.createElement("div");
     savedWorkoutVideo.className = "saved-video";
     
@@ -209,12 +219,12 @@ function createVideoContainer(savedWorkoutVideo) {
     savedVideoThumbnail.className = "saved-video-thumbnail";
 
     var videoLink = document.createElement("a");
-    videoLink.title = workoutVideo.title;
-    videoLink.href = workoutVideo.videoURL.replace(/"/g, "");
+    videoLink.title = videoTitle;
+    videoLink.href = videoURL;
     videoLink.target = "_blank";    
 
     var thumbnailImage = document.createElement("img");
-    thumbnailImage.src = workoutVideo.thumbnail.replace(/"/g, "");
+    thumbnailImage.src = thumbnail;
     thumbnailImage.setAttribute("width", "250");
     thumbnailImage.setAttribute("height", "140");
     videoLink.appendChild(thumbnailImage);
@@ -224,32 +234,27 @@ function createVideoContainer(savedWorkoutVideo) {
 
     //Saved Video Title
     var videoTitleLink = document.createElement("a");
-    videoTitleLink.title = workoutVideo.title;
-    videoTitleLink.href = workoutVideo.videoURL.replace(/"/g, "");
+    videoTitleLink.title = videoTitle;
+    videoTitleLink.href = videoURL;
     videoTitleLink.target = "_blank"; 
 
-    var videoTitle = document.createElement("h4");
-    videoTitle.className = "saved-video-title";
+    var savedVideoTitle = document.createElement("h4");
+    savedVideoTitle.className = "saved-video-title";
 
-    var title = workoutVideo.title.replace(/"/g, "");
-    if (title.length > 30) {
-        title = title.substring(0, 30) + "..."; 
-    }
-
-    videoTitle.innerHTML = title;
-    videoTitleLink.appendChild(videoTitle);
+    savedVideoTitle.innerHTML = videoTitle;
+    videoTitleLink.appendChild(savedVideoTitle);
     savedWorkoutVideo.appendChild(videoTitleLink);
 
     //Saved Video Channel Name
     var channelLink = document.createElement("a");
     channelLink.title = workoutVideo.channelTitle;
-    channelLink.href = workoutVideo.channelURL.replace(/"/g, "");
+    channelLink.href = channelURL;
     channelLink.target = "_blank"; 
 
     var channelTitle = document.createElement("p");
     channelTitle.classList.add("channel-title");
     channelTitle.classList.add("saved-video-channel-title");
-    channelTitle.innerHTML = workoutVideo.channelTitle.replace(/"/g, "");
+    channelTitle.innerHTML = channelName;
     channelLink.appendChild(channelTitle)
     savedWorkoutVideo.appendChild(channelLink);
 
