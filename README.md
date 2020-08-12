@@ -13,7 +13,7 @@ We created this full-stack web application using a variety of Google APIs and se
 
 [MVP Demo](https://drive.google.com/file/d/1Z4b51Q4gQNconXoqCp40vSlvPqqmQnIr/view?usp=sharing)
 
-[Currency Converter Demo] (https://drive.google.com/file/d/1vv7TdeK9xY4HUkZ4U3gABweLTTiZZRIM/view?usp=sharing)
+[Currency Converter Demo](https://drive.google.com/file/d/1vv7TdeK9xY4HUkZ4U3gABweLTTiZZRIM/view?usp=sharing)
 
 [Date Feature Demo](https://drive.google.com/file/d/1IXy-AIu2iDR3VhrodWOOZVCyZU_WJGww/view?usp=sharing)
 
